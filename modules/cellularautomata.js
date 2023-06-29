@@ -19,10 +19,16 @@ export class CellularAutomata {
   }
 
   update() {
-    const req = function (value) {
-      return value !== 0;
+
+    // function spreadToCell(x, y, value) {
+    const spreadToCell = (x, y, value) => {
+      if (x < 0 || x >= this.grid.width) return;
+      if (y < 0 || y >= this.grid.height) return;
+      if (this.gridSave[x][y] != 0) return;
+      
+      this.grid.setCell(x, y, value);
     }
-    
+
     // Read the unaffected grid save while modifying the main grid
     this.saveGrid()
 
@@ -33,10 +39,10 @@ export class CellularAutomata {
         if (item == 0 || item == undefined)
           continue;
 
-        this.grid.setCell(row + 1, column, item, req);
-        this.grid.setCell(row - 1, column, item, req);
-        this.grid.setCell(row, column + 1, item, req);
-        this.grid.setCell(row, column - 1, item, req);
+        spreadToCell(row + 1, column, item);
+        spreadToCell(row - 1, column, item);
+        spreadToCell(row, column + 1, item);
+        spreadToCell(row, column - 1, item);
 
       }
     }

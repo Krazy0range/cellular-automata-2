@@ -15,12 +15,19 @@ export class Grid {
       this.grid[x] = Array(this.height).fill(0);
   }
 
-  setCell(x, y, value, req(value)) {
+  setCell(x, y, value) {
     if (x < 0 || x >= this.width) return;
     if (y < 0 || y >= this.height) return;
-    if !req(value) return;
 
     this.grid[x][y] = value;
+  }
+
+  getCell(x, y) {
+    if (x < 0 || x >= this.width) return;
+    if (y < 0 || y >= this.height) return;
+
+    return this.grid[x][y];
+
   }
 
 }

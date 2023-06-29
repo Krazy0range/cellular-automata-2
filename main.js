@@ -34,4 +34,4 @@ cellularAutomata.grid.setCell(1, 1, 1);
 cellularAutomata.grid.setCell(6, 4, 2);
 cellularAutomata.grid.setCell(3, 8, 3);
 
-// loop();
+loop();
