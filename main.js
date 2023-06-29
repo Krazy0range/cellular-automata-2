@@ -18,7 +18,8 @@ function loop(timestamp) {
 function update(progress) {
   // cellularAutomata.update();
   let mouseCell = cellularAutomata.getCellFromMousePos(mousePos);
-  cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, 1);
+  if (mouseDown[0] > 0)
+    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, 1);
 }
 
 function render() {
@@ -43,5 +44,17 @@ let mousePos = { x: 0, y: 0 };
 canvas.canv.addEventListener("mousemove", function(event) {
   mousePos = canvas.getMousePos(event, displayToResolutionScale);
 }, false);
+
+// let's pretend that a mouse doesn't have more than 9 buttons
+let mouseDown = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+let mouseDownCount = 0;
+document.body.onmousedown = function(evt) { 
+  ++mouseDown[evt.button];
+  ++mouseDownCount;
+}
+document.body.onmouseup = function(evt) {
+  --mouseDown[evt.button];
+  --mouseDownCount;
+}
 
 loop();
