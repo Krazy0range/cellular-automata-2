@@ -45,6 +45,7 @@ canvas.canv.addEventListener("mousemove", function(event) {
   mousePos = canvas.getMousePos(event, displayToResolutionScale);
 }, false);
 
+// TODO: refactor this code into a class
 // let's pretend that a mouse doesn't have more than 9 buttons
 let mouseDown = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 let mouseDownCount = 0;
