@@ -16,6 +16,9 @@ export class Grid {
   }
 
   setCell(x, y, value) {
+    if (x < 0 || x >= this.width) return;
+    if (y < 0 || y >= this.height) return;
+    
     this.grid[x][y] = value;
   }
   
