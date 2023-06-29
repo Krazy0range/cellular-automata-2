@@ -19,6 +19,10 @@ export class CellularAutomata {
   }
 
   update() {
+    const req = function (value) {
+      return value !== 0;
+    }
+    
     // Read the unaffected grid save while modifying the main grid
     this.saveGrid()
 
@@ -29,10 +33,10 @@ export class CellularAutomata {
         if (item == 0 || item == undefined)
           continue;
 
-        this.grid.setCell(row + 1, column, item);
-        this.grid.setCell(row - 1, column, item);
-        this.grid.setCell(row, column + 1, item);
-        this.grid.setCell(row, column - 1, item);
+        this.grid.setCell(row + 1, column, item, req);
+        this.grid.setCell(row - 1, column, item, req);
+        this.grid.setCell(row, column + 1, item, req);
+        this.grid.setCell(row, column - 1, item, req);
 
       }
     }
