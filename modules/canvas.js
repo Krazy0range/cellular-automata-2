@@ -2,21 +2,20 @@
 
 export class Canvas {
 
-  constructor({displayWidth, displayHeight}, {resolutionWidth, resolutionHeight}) {
+  constructor({ displayWidth, displayHeight }, { resolutionWidth, resolutionHeight }) {
     this.displayWidth = displayWidth;
     this.displayHeight = displayHeight;
     this.resolutionWidth = resolutionWidth;
     this.resolutionHeight = resolutionHeight;
-    
+
     this.div = document.createElement("div");
-    
+
     this.canv = document.createElement("canvas");
-    this.canv.setAttribute("width", this.resolutionWidth.toString());
-    this.canv.setAttribute("height", this.resolutionHeight.toString());
-    // let widthStyle = `border: 1px solid black;`;
-    // let widthStyle = `width: ${this.displayWidth}px;`;
-    // let heightStyle = `height: ${this.displayHeight}px;`;
-    // this.canv.setAttribute("style", `${borderStyle} ${widthStyle} ${heightStyle}`);
+    this.canv.width = this.resolutionWidth;
+    this.canv.height = this.resolutionHeight;
+    this.canv.style.width = this.displayWidth + "px";
+    this.canv.style.height = this.displayHeight + "px";
+    this.canv.style.border = "1px solid black";
 
     this.div.appendChild(this.canv);
     document.body.appendChild(this.div);
@@ -24,14 +23,26 @@ export class Canvas {
     this.ctx = this.canv.getContext("2d");
   }
 
-  renderGrid(cellSize) {
-    this.drawCell(0, 0, cellSize);
+  renderGrid(grid, cellSize, colorSettings) {
+    for (let row = 0; row < grid.width; row++) {
+      for (let column = 0; column < grid.height; column++) {
+        const item = grid.grid[row][column];
+        const cellX = row * cellSize;
+        const cellY = column * cellSize;
+        this.drawCell(cellX, cellY, cellSize, colorSettings[item]);
+      }
+    }
   }
 
-  drawCell(x, y, cellSize) {
+  drawCell(x, y, cellSize, color) {
     this.ctx.beginPath();
-    this.ctx.rect(x, y, x+cellSize, y+cellSize);
+
+    this.ctx.strokeStyle = color;
+    this.ctx.rect(x, y, cellSize, cellSize);
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
+    
     this.ctx.stroke();
   }
-  
+
 }

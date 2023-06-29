@@ -10,11 +10,13 @@ export class Grid {
   }
 
   initGrid(value) {
-    this.grid.forEach(row => {
-      row.forEach(cell => {
-        cell = value;
-      })
-    });
+    this.grid = Array(this.width);
+    for (let x = 0; x < this.width; x++)
+      this.grid[x] = Array(this.height).fill(0);
+  }
+
+  setCell(x, y, value) {
+    this.grid[x][y] = value;
   }
   
 }
