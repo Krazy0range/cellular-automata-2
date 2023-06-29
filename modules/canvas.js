@@ -2,15 +2,16 @@
 
 export class Canvas {
 
-  constructor({ displayWidth, displayHeight }, { resolutionWidth, resolutionHeight }) {
-    this.displayWidth = displayWidth;
-    this.displayHeight = displayHeight;
-    this.resolutionWidth = resolutionWidth;
-    this.resolutionHeight = resolutionHeight;
+  constructor(displayDimensions, resolutionDimensions) {
+    this.displayWidth = displayDimensions.width;
+    this.displayHeight = displayDimensions.height;
+    this.resolutionWidth = resolutionDimensions.width;
+    this.resolutionHeight = resolutionDimensions.height;
 
     this.div = document.createElement("div");
 
     this.canv = document.createElement("canvas");
+    this.canv.id = "canvas";
     this.canv.width = this.resolutionWidth;
     this.canv.height = this.resolutionHeight;
     this.canv.style.width = this.displayWidth + "px";
@@ -19,6 +20,8 @@ export class Canvas {
 
     this.div.appendChild(this.canv);
     document.body.appendChild(this.div);
+
+    this.canvElement = document.getElementById("canvas");
 
     this.ctx = this.canv.getContext("2d");
   }
@@ -34,7 +37,7 @@ export class Canvas {
     }
   }
 
-  drawCell(x, y, cellSize, color) {
+  drawCell(x, y, cellSize, color) {    
     this.ctx.beginPath();
 
     this.ctx.strokeStyle = color;
@@ -44,5 +47,13 @@ export class Canvas {
     
     this.ctx.stroke();
   }
+
+  getMousePos(mouseEvent, displayToResolutionScale) {
+  let rect = this.canvElement.getBoundingClientRect();
+  return {
+    x: (mouseEvent.clientX - rect.left) * displayToResolutionScale,
+    y: (mouseEvent.clientY - rect.top) * displayToResolutionScale
+  };
+}
 
 }

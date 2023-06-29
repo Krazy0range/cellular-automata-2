@@ -4,10 +4,10 @@ import { Grid } from "./grid.js";
 
 export class CellularAutomata {
 
-  constructor({ width, height }, cellSize) {
+  constructor(gridDimensions, cellSize) {
     this.cellSize = cellSize;
 
-    this.grid = new Grid(width, height, 0);
+    this.grid = new Grid(gridDimensions.width, gridDimensions.height, 0);
     this.gridSave = [];
 
     this.colorSettings = {
@@ -50,6 +50,13 @@ export class CellularAutomata {
 
   saveGrid() {
     this.gridSave = JSON.parse(JSON.stringify(this.grid.grid));
+  }
+
+  getCellFromMousePos(mousePosition) {
+    return {
+      x : Math.floor(mousePosition.x / this.cellSize),
+      y : Math.floor(mousePosition.y / this.cellSize)
+    }
   }
 
 }
