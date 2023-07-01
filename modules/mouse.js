@@ -4,7 +4,6 @@ export class Mouse {
 
   constructor(canvas) {
     this.canvas = canvas;
-    console.log(this.canvas);
     
     this.buttons = [0, 0, 0, 0, 0];
     this.currentPresses = 0;

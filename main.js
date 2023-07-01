@@ -16,7 +16,7 @@ function loop(timestamp) {
 }
 
 function update(progress) {
-  // cellularAutomata.update();
+  cellularAutomata.update();
   
   if (mouse.leftClick()) {
     let mouseCell = cellularAutomata.getCellFromMousePos(mouse.mousePos);
@@ -39,9 +39,10 @@ const cellularAutomata = new CellularAutomata(cellGridSize, cellSize);
 
 const mouse = new Mouse(canvas);
 
-// cellularAutomata.grid.setCell(1, 1, 1);
-// cellularAutomata.grid.setCell(6, 4, 2);
-// cellularAutomata.grid.setCell(3, 8, 3);
+cellularAutomata.grid.setCell(5, 4, 1);
+cellularAutomata.grid.setCell(5, 5, 1);
+cellularAutomata.grid.setCell(5, 6, 1);
+
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;
