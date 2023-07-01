@@ -2,7 +2,7 @@
 
 import { Canvas } from "./modules/canvas.js";
 import { CellularAutomata } from "./modules/cellularautomata.js";
-
+import { Mouse } from "./modules/mouse.js";
 
 let lastRender = 0;
 function loop(timestamp) {
@@ -17,9 +17,12 @@ function loop(timestamp) {
 
 function update(progress) {
   // cellularAutomata.update();
-  let mouseCell = cellularAutomata.getCellFromMousePos(mousePos);
-  if (mouseDown[0] > 0)
-    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, 1);
+  
+  if (mouse.leftClick()) {
+    let mouseCell = cellularAutomata.getCellFromMousePos(mouse.mousePos);
+    const cellOpposite = 1 - cellularAutomata.grid.getCell(mouseCell.x, mouseCell.y);
+    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, cellOpposite);
+  }
 }
 
 function render() {
@@ -28,34 +31,20 @@ function render() {
 
 const canvasDisplayDimensions = { width: 500, height: 500 };
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
-const displayToResolutionScale = canvasResolutionDimensions.width / canvasDisplayDimensions.width;
 const canvas = new Canvas(canvasDisplayDimensions, canvasResolutionDimensions);
 
-const cellGridSize = { width: 100, height: 100 };
+const cellGridSize = { width: 10, height: 10 };
 const cellSize = canvas.resolutionWidth / cellGridSize.width;
 const cellularAutomata = new CellularAutomata(cellGridSize, cellSize);
+
+const mouse = new Mouse(canvas);
 
 // cellularAutomata.grid.setCell(1, 1, 1);
 // cellularAutomata.grid.setCell(6, 4, 2);
 // cellularAutomata.grid.setCell(3, 8, 3);
 
-let mousePos = { x: 0, y: 0 };
-
-canvas.canv.addEventListener("mousemove", function(event) {
-  mousePos = canvas.getMousePos(event, displayToResolutionScale);
-}, false);
-
-// TODO: refactor this code into a class
-// let's pretend that a mouse doesn't have more than 9 buttons
-let mouseDown = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-let mouseDownCount = 0;
-document.body.onmousedown = function(evt) { 
-  ++mouseDown[evt.button];
-  ++mouseDownCount;
-}
-document.body.onmouseup = function(evt) {
-  --mouseDown[evt.button];
-  --mouseDownCount;
-}
+document.body.onmousemove = mouse.mouseMove;
+document.body.onmousedown = mouse.mouseDown;
+document.body.onmouseup = mouse.mouseUp;
 
 loop();

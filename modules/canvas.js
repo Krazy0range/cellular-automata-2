@@ -3,6 +3,7 @@
 export class Canvas {
 
   constructor(displayDimensions, resolutionDimensions) {
+    this.displayToResolutionScale = resolutionDimensions.width / displayDimensions.width;
     this.displayWidth = displayDimensions.width;
     this.displayHeight = displayDimensions.height;
     this.resolutionWidth = resolutionDimensions.width;
@@ -48,12 +49,12 @@ export class Canvas {
     this.ctx.stroke();
   }
 
-  getMousePos(mouseEvent, displayToResolutionScale) {
-  let rect = this.canvElement.getBoundingClientRect();
-  return {
-    x: (mouseEvent.clientX - rect.left) * displayToResolutionScale,
-    y: (mouseEvent.clientY - rect.top) * displayToResolutionScale
-  };
-}
+  getMousePos(mouseEvent) {
+    let rect = this.canvElement.getBoundingClientRect();
+    return {
+      x: (mouseEvent.clientX - rect.left) * this.displayToResolutionScale,
+      y: (mouseEvent.clientY - rect.top) * this.displayToResolutionScale
+    };
+  }
 
 }
