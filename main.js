@@ -29,20 +29,21 @@ function render() {
   canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorSettings);
 }
 
-const canvasDisplayDimensions = { width: 500, height: 500 };
+const canvasDisplayDimensions = { width: 250, height: 250 };
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
 const canvas = new Canvas(canvasDisplayDimensions, canvasResolutionDimensions);
 
-const cellGridSize = { width: 10, height: 10 };
+const cellGridSize = { width: 100, height: 100 };
 const cellSize = canvas.resolutionWidth / cellGridSize.width;
 const cellularAutomata = new CellularAutomata(cellGridSize, cellSize);
 
 const mouse = new Mouse(canvas);
 
-cellularAutomata.grid.setCell(5, 4, 1);
-cellularAutomata.grid.setCell(5, 5, 1);
-cellularAutomata.grid.setCell(5, 6, 1);
-
+cellularAutomata.grid.setCell(1, 0, 1);
+cellularAutomata.grid.setCell(2, 1, 1);
+cellularAutomata.grid.setCell(0, 2, 1);
+cellularAutomata.grid.setCell(1, 2, 1);
+cellularAutomata.grid.setCell(2, 2, 1);
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;

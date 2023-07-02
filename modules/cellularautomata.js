@@ -20,32 +20,15 @@ export class CellularAutomata {
 
   update() {
 
-    // Read the unaffected grid save while modifying the main grid
     this.saveGrid()
 
-    for (let row = 0; row < this.grid.width; row++) {
-      for (let column = 0; column < this.grid.height; column++) {
-        const item = this.grid.getCell(row, column);
+    for (let x = 0; x < this.grid.width; x++) {
+      for (let y = 0; y < this.grid.height; y++) {
+        const item = this.grid.getCell(x, y);
 
-        // // const neighbors = [
-        // //   this.grid.getCell(row + 1, column),
-        // //   this.grid.getCell(row - 1, column),
-        // //   this.grid.getCell(row, column + 1),
-        // //   this.grid.getCell(row, column - 1)
-        // // ]
-
-        // // let sumcounter = 0;
-        // // for (let n in neighbors)
-        // //   sumcounter += n;
-        // // const sum = sumcounter;//neighbors.reduce(
-        // // //   (total, next) => {
-        // // //     return total + next;
-        // // //   }
-        // // // );
-
-        const top = this.grid.getCell(row + 1, column)+this.grid.getCell(row + 1, column - 1)+this.grid.getCell(row + 1, column + 1);
-        const mid = this.grid.getCell(row + 0, column - 1)+this.grid.getCell(row + 0, column + 1);
-        const bot = this.grid.getCell(row - 1, column)+this.grid.getCell(row - 1, column - 1)+this.grid.getCell(row - 1, column + 1);
+        const top = this.grid.getCell(x + 1, y - 1) + this.grid.getCell(x, y - 1) + this.grid.getCell(x - 1, y - 1);
+        const mid = this.grid.getCell(x + 1, y) + this.grid.getCell(x - 1, y);
+        const bot = this.grid.getCell(x + 1, y + 1) + this.grid.getCell(x, y + 1) + this.grid.getCell(x - 1, y + 1);
         const sum = top + mid + bot;
 
         console.log(sum);
@@ -62,7 +45,7 @@ export class CellularAutomata {
             result = 0; break;
         }
 
-        this.gridSave[row][column] = result;
+        this.gridSave[x][y] = result;
 
       }
     }
