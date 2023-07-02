@@ -29,7 +29,7 @@ function render() {
   canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorSettings);
 }
 
-const canvasDisplayDimensions = { width: 250, height: 250 };
+const canvasDisplayDimensions = { width: 500, height: 500 };
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
 const canvas = new Canvas(canvasDisplayDimensions, canvasResolutionDimensions);
 
@@ -39,11 +39,23 @@ const cellularAutomata = new CellularAutomata(cellGridSize, cellSize);
 
 const mouse = new Mouse(canvas);
 
-cellularAutomata.grid.setCell(1, 0, 1);
-cellularAutomata.grid.setCell(2, 1, 1);
-cellularAutomata.grid.setCell(0, 2, 1);
-cellularAutomata.grid.setCell(1, 2, 1);
-cellularAutomata.grid.setCell(2, 2, 1);
+function makeGlider(x, y) {
+  cellularAutomata.grid.setCell(x+1, y+0, 1);
+  cellularAutomata.grid.setCell(x+2, y+1, 1);
+  cellularAutomata.grid.setCell(x+0, y+2, 1);
+  cellularAutomata.grid.setCell(x+1, y+2, 1);
+  cellularAutomata.grid.setCell(x+2, y+2, 1);
+}
+
+makeGlider(0,0);
+makeGlider(5,0);
+makeGlider(10,0);
+makeGlider(0,5);
+makeGlider(5,5);
+makeGlider(10,5);
+makeGlider(0,10);
+makeGlider(5,10);
+makeGlider(10,10);
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;
