@@ -47,15 +47,26 @@ function makeGlider(x, y) {
   cellularAutomata.grid.setCell(x+2, y+2, 1);
 }
 
-makeGlider(0,0);
-makeGlider(5,0);
-makeGlider(10,0);
-makeGlider(0,5);
-makeGlider(5,5);
-makeGlider(10,5);
-makeGlider(0,10);
-makeGlider(5,10);
-makeGlider(10,10);
+function gliderSquadron(x,y) {
+  makeGlider(x+0,y+0);
+  makeGlider(x+5,y+0);
+  makeGlider(x+10,y+0);
+  makeGlider(x+0,y+5);
+  makeGlider(x+5,y+5);
+  makeGlider(x+10,y+5);
+  makeGlider(x+0,y+10);
+  makeGlider(x+5,y+10);
+  makeGlider(x+10,y+10);
+}
+
+function gliderChonk(x,y) {
+  gliderSquadron(0,0);
+  gliderSquadron(15,0);
+  gliderSquadron(0,15);
+  gliderSquadron(15,15);
+}
+
+gliderChonk(0,0);
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;
