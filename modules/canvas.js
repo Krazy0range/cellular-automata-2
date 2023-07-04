@@ -12,8 +12,8 @@ export class Canvas {
     this.canv.id = "canvas";
     this.canv.width = this.resolutionWidth;
     this.canv.height = this.resolutionHeight;
-    this.canv.style.width = "50%";
-    this.canv.style.height = "50%";
+    this.canv.style.width = "calc(100vmin - 20px)";
+    this.canv.style.height = "calc(100vmin - 20px)";
     this.canv.style.border = "1px solid black";
     this.canv.oncontextmenu = function(event) {
       event.preventDefault();
@@ -26,7 +26,7 @@ export class Canvas {
     this.div.appendChild(this.canv);
 
     this.canvElement = document.getElementById("canvas");
-    
+
     this.displayWidth = () => { return this.canvElement.offsetWidth };
     this.displayHeight = () => { return this.canvElement.offsetHeight };
 

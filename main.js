@@ -48,7 +48,7 @@ function loop(timestamp) {
 }
 
 function update(progress) {
-  //cellularAutomata.update();
+  cellularAutomata.update();
   handleMouse();
 }
 
@@ -67,9 +67,6 @@ const mouse = new Mouse(canvas);
 const patterns = new GameOfLifePatterns(cellularAutomata);
 
 patterns.gliderGun(0, 0);
-patterns.gliderGun(0, 30);
-patterns.gliderGun(50, 0);
-patterns.gliderGun(50, 30);
 patterns.spawn();
 
 document.body.onmousemove = mouse.mouseMove;
