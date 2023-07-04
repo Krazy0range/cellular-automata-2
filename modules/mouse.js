@@ -33,4 +33,8 @@ export class Mouse {
     return this.buttons[2];
   }
 
+  middleClick() {
+    return this.buttons[1];
+  }
+
 }
