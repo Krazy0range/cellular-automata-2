@@ -4,10 +4,10 @@ import { Grid } from "./grid.js";
 
 export class CellularAutomata {
 
-  constructor(gridDimensions, cellSize) {
-    this.cellSize = cellSize;
-
-    this.grid = new Grid(gridDimensions.width, gridDimensions.height, 0);
+  constructor(canvas, gridDimensions) {
+    this.canvas = canvas;
+    this.gridDimensions = gridDimensions;
+    this.grid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
     this.gridSave = [];
 
     this.colorSettings = {
@@ -19,7 +19,6 @@ export class CellularAutomata {
   }
 
   update() {
-
     this.saveGrid()
 
     for (let x = 0; x < this.grid.width; x++) {
@@ -30,8 +29,6 @@ export class CellularAutomata {
         const mid = this.grid.getCell(x + 1, y) + this.grid.getCell(x - 1, y);
         const bot = this.grid.getCell(x + 1, y + 1) + this.grid.getCell(x, y + 1) + this.grid.getCell(x - 1, y + 1);
         const sum = top + mid + bot;
-
-        console.log(sum);
 
         let result = 0;
         switch (sum) {
@@ -62,9 +59,10 @@ export class CellularAutomata {
   }
 
   getCellFromMousePos(mousePosition) {
+    const divisor = this.canvas.displayWidth() / this.gridDimensions.width;
     return {
-      x : Math.floor(mousePosition.x / this.cellSize),
-      y : Math.floor(mousePosition.y / this.cellSize)
+      x: Math.floor(mousePosition.x / divisor),
+      y: Math.floor(mousePosition.y / divisor)
     }
   }
 

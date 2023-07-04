@@ -3,6 +3,38 @@
 import { Canvas } from "./modules/canvas.js";
 import { CellularAutomata } from "./modules/cellularautomata.js";
 import { Mouse } from "./modules/mouse.js";
+import { GameOfLifePatterns } from "./modules/patterns.js";
+
+// TODO:
+// Fix canvas resizing, mouse position being recorded incorrectly
+
+function getWidth() {
+  return Math.max(
+    // document.body.scrollWidth,
+    // document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
+
+function handleMouse() {
+  let mouseCell = cellularAutomata.getCellFromMousePos(mouse.mousePos);
+  if (mouse.leftClick())
+    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, 1);
+  if (mouse.rightClick())
+    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, 0);
+}
 
 let lastRender = 0;
 function loop(timestamp) {
@@ -16,57 +48,29 @@ function loop(timestamp) {
 }
 
 function update(progress) {
-  cellularAutomata.update();
-  
-  if (mouse.leftClick()) {
-    let mouseCell = cellularAutomata.getCellFromMousePos(mouse.mousePos);
-    const cellOpposite = 1 - cellularAutomata.grid.getCell(mouseCell.x, mouseCell.y);
-    cellularAutomata.grid.setCell(mouseCell.x, mouseCell.y, cellOpposite);
-  }
+  //cellularAutomata.update();
+  handleMouse();
 }
 
 function render() {
   canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorSettings);
 }
 
-const canvasDisplayDimensions = { width: 500, height: 500 };
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
-const canvas = new Canvas(canvasDisplayDimensions, canvasResolutionDimensions);
+const canvas = new Canvas(canvasResolutionDimensions);
 
-const cellGridSize = { width: 100, height: 100 };
-const cellSize = canvas.resolutionWidth / cellGridSize.width;
-const cellularAutomata = new CellularAutomata(cellGridSize, cellSize);
+const gridDimensions = { width: 100, height: 100 };
+const cellSize = canvas.resolutionWidth / gridDimensions.width;
+const cellularAutomata = new CellularAutomata(canvas, gridDimensions);
 
 const mouse = new Mouse(canvas);
+const patterns = new GameOfLifePatterns(cellularAutomata);
 
-function makeGlider(x, y) {
-  cellularAutomata.grid.setCell(x+1, y+0, 1);
-  cellularAutomata.grid.setCell(x+2, y+1, 1);
-  cellularAutomata.grid.setCell(x+0, y+2, 1);
-  cellularAutomata.grid.setCell(x+1, y+2, 1);
-  cellularAutomata.grid.setCell(x+2, y+2, 1);
-}
-
-function gliderSquadron(x,y) {
-  makeGlider(x+0,y+0);
-  makeGlider(x+5,y+0);
-  makeGlider(x+10,y+0);
-  makeGlider(x+0,y+5);
-  makeGlider(x+5,y+5);
-  makeGlider(x+10,y+5);
-  makeGlider(x+0,y+10);
-  makeGlider(x+5,y+10);
-  makeGlider(x+10,y+10);
-}
-
-function gliderChonk(x,y) {
-  gliderSquadron(0,0);
-  gliderSquadron(15,0);
-  gliderSquadron(0,15);
-  gliderSquadron(15,15);
-}
-
-gliderChonk(0,0);
+patterns.gliderGun(0, 0);
+patterns.gliderGun(0, 30);
+patterns.gliderGun(50, 0);
+patterns.gliderGun(50, 30);
+patterns.spawn();
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;
