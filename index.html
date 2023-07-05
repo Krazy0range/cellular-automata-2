@@ -23,13 +23,23 @@
         <b>Instructions</b>
         <p>
           Left click to draw, right click to clear.
-          Press 1 to select wire cells, 2 for electron cells, and 3 for electron head cells.
+          Press 1 to select wire cells, 2 for electron cells, and 3 for electron tail cells.
           Press space to play/pause the simulation.
+        </p>
+        <b>Rules</b>
+        <p>
+          Empty cells do not change.
+          Wire cells become a electron cell if it has 1 or 2 neighboring electrons.
+          Electrons become electron tails, and electron tails become a wire cell.
         </p>
       </div>
       <div id="buttons">
         <button id="clearbtn">Reset</button>
         <button id="stepbtn">Step</button>
+      </div>
+      <div id="debug">
+        <b>Debug info:</b>
+        <p id="debugtext">simulationSpeed = 1</p>
       </div>
     </div>
   </div>

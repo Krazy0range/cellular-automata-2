@@ -27,6 +27,9 @@ class CellularAutomata {
     this.stepBtn.onclick = (event) => {
       this.singleUpdate();
     }
+
+    this.debug = document.getElementById("debugtext")
+    this.debug.innerText = "loading...";
   }
 
   resetGrid() {
@@ -36,8 +39,14 @@ class CellularAutomata {
   }
 
   update() {
+    this.updateDebug();
     for (let i = 0; i < this.simulationSpeed; i++)
       this.singleUpdate();
+  }
+
+  updateDebug() {
+    const simulationSpeedDebug = `simulationSpeed = ${this.simulationSpeed};`;
+    this.debug.innerHTML = simulationSpeedDebug;
   }
 
   singleUpdate() { }
