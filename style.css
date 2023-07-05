@@ -1,5 +1,48 @@
 html {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+}
+
+body {
+  font-family: monospace;
+}
+
+#maindiv {
+  display: flex;
+}
+
+#instructions {
+  margin-left: 10px;
+  padding: 10px;
+  border: 1px solid black;
+  width: 200px;
+}
+
+#buttons {
+  padding: 10px;
+}
+
+canvas {
+  width: calc(100vmin - 20px);
+  height: calc(100vmin - 20px);
+  border: 1px solid black;
+}
+
+button {
+  font-family: monospace;
+  font-size: 15px;
+  padding: 5px;
+  border: 1px solid black;
+  color: black;
+  background-color: white;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+button:hover {
+  background-color: black;
+  color: white;
+}
+
+button:active {
+  transform: translateY(1px);
 }

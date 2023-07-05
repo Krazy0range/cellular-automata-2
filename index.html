@@ -16,7 +16,23 @@
   <script src="modules/patterns.js" type="module"></script>
   <script src="main.js" type="module"></script>
 
-  <p>Hi?</p>
+  <div id="maindiv">
+    <!-- This is where the canvas will appear -->
+    <div>
+      <div id="instructions">
+        <b>Instructions</b>
+        <p>
+          Left click to draw, right click to clear.
+          Press 1 to select wire cells, 2 for electron cells, and 3 for electron head cells.
+          Press space to play/pause the simulation.
+        </p>
+      </div>
+      <div id="buttons">
+        <button id="clearbtn">Reset</button>
+        <button id="stepbtn">Step</button>
+      </div>
+    </div>
+  </div>
 
   <!--
   This script places a badge on your repl's full-browser view back to your repl's cover

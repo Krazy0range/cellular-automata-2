@@ -6,31 +6,22 @@ export class Canvas {
     this.resolutionWidth = resolutionDimensions.width;
     this.resolutionHeight = resolutionDimensions.height;
 
-    this.div = document.createElement("div");
-
     this.canv = document.createElement("canvas");
     this.canv.id = "canvas";
     this.canv.width = this.resolutionWidth;
     this.canv.height = this.resolutionHeight;
-    this.canv.style.width = "calc(100vmin - 20px)";
-    this.canv.style.height = "calc(100vmin - 20px)";
-    this.canv.style.border = "1px solid black";
     this.canv.oncontextmenu = function(event) {
       event.preventDefault();
     }
 
-    this.div.style.width = "auto";
-    this.div.style.height = "auto";
-    this.div.appendChild(this.canv);
-    
-    document.body.appendChild(this.div);
+    const div = document.getElementById("maindiv");
+    div.insertBefore(this.canv, div.firstChild);
 
     this.canvElement = document.getElementById("canvas");
+    this.ctx = this.canv.getContext("2d");
 
     this.displayWidth = () => { return this.canvElement.offsetWidth };
     this.displayHeight = () => { return this.canvElement.offsetHeight };
-
-    this.ctx = this.canv.getContext("2d");
   }
 
   updateCanvasSize(width, height) {

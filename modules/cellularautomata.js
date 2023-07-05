@@ -17,17 +17,33 @@ class CellularAutomata {
       0: "white",
       1: "black"
     }
+
+    this.clearBtn = document.getElementById("clearbtn");
+    this.clearBtn.onclick = (event) => {
+      this.resetGrid();
+    }
+
+    this.stepBtn = document.getElementById("stepbtn");
+    this.stepBtn.onclick = (event) => {
+      this.singleUpdate();
+    }
+  }
+
+  resetGrid() {
+    for (let x = 0; x < this.grid.width; x++)
+      for (let y = 0; y < this.grid.height; y++)
+        this.grid.setCell(x, y, 0);
   }
 
   update() {
     for (let i = 0; i < this.simulationSpeed; i++)
       this.singleUpdate();
   }
-  
-  singleUpdate() {}
 
-  handleMouse(mouse) {}
-  handleKeyboard(keyboard) {}
+  singleUpdate() { }
+
+  handleMouse(mouse) { }
+  handleKeyboard(keyboard) { }
 
   saveGrid() {
     this.gridSave = JSON.parse(JSON.stringify(this.grid.grid));
@@ -66,7 +82,7 @@ export class WireWorld extends CellularAutomata {
 
   handleMouse(mouse) {
     let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
-    
+
     if (mouse.leftClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
     if (mouse.rightClick())
@@ -131,12 +147,12 @@ export class WireWorld extends CellularAutomata {
   }
 
   evalWireCell(neighbors) {
-    
+
     const surroundingElectrons = this.#count(neighbors, this.ELECTRON);
-    
+
     if (surroundingElectrons == 1 || surroundingElectrons == 2)
       return this.ELECTRON;
-    
+
     return this.WIRE;
   }
 
@@ -166,7 +182,7 @@ export class ConwaysGameOfLife extends CellularAutomata {
 
   handleMouse(mouse) {
     let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
-    
+
     if (mouse.leftClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, 1);
     if (mouse.rightClick())
