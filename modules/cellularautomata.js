@@ -10,15 +10,24 @@ class CellularAutomata {
     this.grid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
     this.gridSave = [];
 
+    this.currentInputCell = 1;
+    this.simulationSpeed = 1;
+
     this.colorSettings = {
       0: "white",
       1: "black"
     }
   }
 
-  update() { }
+  update() {
+    for (let i = 0; i < this.simulationSpeed; i++)
+      this.singleUpdate();
+  }
+  
+  singleUpdate() {}
 
-  handleMouse(mouse, mouseCell) { }
+  handleMouse(mouse) {}
+  handleKeyboard(keyboard) {}
 
   saveGrid() {
     this.gridSave = JSON.parse(JSON.stringify(this.grid.grid));
@@ -55,16 +64,27 @@ export class WireWorld extends CellularAutomata {
     };
   }
 
-  handleMouse(mouse, mouseCell) {
+  handleMouse(mouse) {
+    let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
+    
     if (mouse.leftClick())
-      this.grid.setCell(mouseCell.x, mouseCell.y, 1);
+      this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
     if (mouse.rightClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, 0);
-    if (mouse.middleClick())
-      this.grid.setCell(mouseCell.x, mouseCell.y, 2);
   }
 
-  update() {
+  handleKeyboard(keyboard) {
+    if (keyboard.keys["Digit1"])
+      this.currentInputCell = 1;
+    if (keyboard.keys["Digit2"])
+      this.currentInputCell = 2;
+    if (keyboard.keys["Digit3"])
+      this.currentInputCell = 3;
+    if (keyboard.keysDown["Space"])
+      this.simulationSpeed = 1 - this.simulationSpeed;
+  }
+
+  singleUpdate() {
     this.saveGrid();
 
     for (let x = 0; x < this.grid.width; x++) {
@@ -144,14 +164,21 @@ export class ConwaysGameOfLife extends CellularAutomata {
     }
   }
 
-  handleMouse(mouse, mouseCell) {
+  handleMouse(mouse) {
+    let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
+    
     if (mouse.leftClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, 1);
     if (mouse.rightClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, 0);
   }
 
-  update() {
+  handleKeyboard(keyboard) {
+    if (keyboard.keysDown["Space"])
+      this.simulationSpeed = 1 - this.simulationSpeed;
+  }
+
+  singleUpdate() {
     this.saveGrid()
 
     for (let x = 0; x < this.grid.width; x++) {

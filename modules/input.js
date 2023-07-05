@@ -20,7 +20,11 @@ export class Mouse {
     };
 
     this.mouseMove = (event) => {
-      this.mousePos = this.canvas.getMousePos(event);
+      this.mousePos = {
+        x: event.clientX,
+        y: event.clientY
+      };
+        // this.canvas.getMousePos(event);
     };
     
   }
@@ -37,4 +41,26 @@ export class Mouse {
     return this.buttons[1];
   }
 
+}
+
+export class Keyboard {
+
+  constructor() {
+    this.keys = {};
+    this.keysDown = {};
+    
+    this.keyDown = (event) => {
+      this.keys[event.code] = true;
+      this.keysDown[event.code] = true;
+    }
+
+    this.keyUp = (event) => {
+      this.keys[event.code] = false;
+    }
+  }
+
+  updateKeysDown() {
+    this.keysDown = {};
+  }
+  
 }

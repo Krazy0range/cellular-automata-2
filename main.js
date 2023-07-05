@@ -1,33 +1,34 @@
 "use strict";
 
 import { Canvas } from "./modules/canvas.js";
-import { WireWorld } from "./modules/cellularautomata.js";
-import { Mouse } from "./modules/mouse.js";
+import { ConwaysGameOfLife, WireWorld } from "./modules/cellularautomata.js";
+import { Mouse, Keyboard } from "./modules/input.js";
 import { GameOfLifePatterns } from "./modules/patterns.js";
 
-function handleMouse() {
-  let mouseCell = cellularAutomata.getCellFromMousePos(mouse.mousePos);
-  cellularAutomata.handleMouse(mouse, mouseCell);
+function handleInput() {
+  cellularAutomata.handleMouse(mouse);
+  cellularAutomata.handleKeyboard(keyboard);
 }
 
-let lastRender = 0;
-function loop(timestamp) {
-  var progress = timestamp - lastRender
-
-  update(progress)
-  render()
-
-  lastRender = timestamp
-  window.requestAnimationFrame(loop)
-}
-
-function update(progress) {
+function update() {
   cellularAutomata.update();
-  handleMouse();
+  handleInput();
+  keyboard.updateKeysDown();
 }
 
 function render() {
   canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorSettings);
+}
+
+let lastRender = 0;
+function loop(timestamp) {
+  var progress = timestamp - lastRender;
+
+  update();
+  render();
+
+  lastRender = timestamp;
+  window.requestAnimationFrame(loop);
 }
 
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
@@ -38,10 +39,12 @@ const cellSize = canvas.resolutionWidth / gridDimensions.width;
 const cellularAutomata = new WireWorld(canvas, gridDimensions);
 
 const mouse = new Mouse(canvas);
-const patterns = new GameOfLifePatterns(cellularAutomata);
+const keyboard = new Keyboard();
 
 document.body.onmousemove = mouse.mouseMove;
 document.body.onmousedown = mouse.mouseDown;
 document.body.onmouseup = mouse.mouseUp;
+document.body.onkeydown = keyboard.keyDown;
+document.body.onkeyup = keyboard.keyUp;
 
 loop();

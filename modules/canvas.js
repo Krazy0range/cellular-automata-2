@@ -21,9 +21,9 @@ export class Canvas {
 
     this.div.style.width = "auto";
     this.div.style.height = "auto";
-
-    document.body.appendChild(this.div);
     this.div.appendChild(this.canv);
+    
+    document.body.appendChild(this.div);
 
     this.canvElement = document.getElementById("canvas");
 
@@ -60,11 +60,11 @@ export class Canvas {
     this.ctx.stroke();
   }
 
-  getMousePos(mouseEvent) {
+  mousePosToCanvas(mousePos) {
     let rect = this.canvElement.getBoundingClientRect();
     return {
-      x: (mouseEvent.clientX - rect.left),
-      y: (mouseEvent.clientY - rect.top)
+      x: (mousePos.x - rect.left),
+      y: (mousePos.y - rect.top)
     };
   }
 
