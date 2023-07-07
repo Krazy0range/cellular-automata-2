@@ -1,7 +1,7 @@
 "use strict";
 
 import { Canvas } from "./modules/canvas.js";
-import { ConwaysGameOfLife, WireWorld } from "./modules/cellularautomata.js";
+import { ConwaysGameOfLife, WireWorld, Ultimata } from "./modules/cellularautomata.js";
 import { Mouse, Keyboard } from "./modules/input.js";
 import { GameOfLifePatterns } from "./modules/patterns.js";
 
@@ -36,7 +36,7 @@ const canvas = new Canvas(canvasResolutionDimensions);
 
 const gridDimensions = { width: 25, height: 25 };
 const cellSize = canvas.resolutionWidth / gridDimensions.width;
-const cellularAutomata = new WireWorld(canvas, gridDimensions);
+const cellularAutomata = new Ultimata(canvas, gridDimensions);
 
 const mouse = new Mouse(canvas);
 const keyboard = new Keyboard();

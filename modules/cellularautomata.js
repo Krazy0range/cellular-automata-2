@@ -18,6 +18,7 @@ class CellularAutomata {
       1: "black"
     }
 
+    this.instructions = document.getElementById("instructions");
     this.buttons = document.getElementById("buttons");
 
     this.clearBtn = document.getElementById("clearbtn");
@@ -75,6 +76,14 @@ class CellularAutomata {
   }
 }
 
+export class Ultimata extends CellularAutomata {
+
+  constructor(canvas, gridDimensions) {
+    super(canvas, gridDimensions);
+  }
+  
+}
+
 export class WireWorld extends CellularAutomata {
 
   constructor(canvas, gridDimensions) {
@@ -92,6 +101,20 @@ export class WireWorld extends CellularAutomata {
       3: "white"
     };
 
+    this.instructions.innerHTML = `
+        <b>Instructions</b>
+        <p>
+          Left click to draw, right click to clear.
+          Press 1 to select wire cells, 2 for electron cells, and 3 for electron tail cells.
+          Press space to play/pause the simulation.
+        </p>
+        <b>Rules</b>
+        <p>
+          Empty cells do not change.
+          Wire cells become a electron cell if it has 1 or 2 neighboring electrons.
+          Electrons become electron tails, and electron tails become a wire cell.
+        </p>
+      `
 
     // <button id="clearelectronsbtn">Clear Electrons</button>
     //document.getElementById("clearelectronsbtn");
