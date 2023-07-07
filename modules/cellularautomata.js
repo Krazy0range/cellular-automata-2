@@ -18,6 +18,8 @@ class CellularAutomata {
       1: "black"
     }
 
+    this.buttons = document.getElementById("buttons");
+
     this.clearBtn = document.getElementById("clearbtn");
     this.clearBtn.onclick = (event) => {
       this.resetGrid();
@@ -28,6 +30,7 @@ class CellularAutomata {
       this.singleUpdate();
     }
 
+
     this.debug = document.getElementById("debugtext")
     this.debug.innerText = "loading...";
   }
@@ -37,6 +40,7 @@ class CellularAutomata {
       for (let y = 0; y < this.grid.height; y++)
         this.grid.setCell(x, y, 0);
   }
+
 
   update() {
     this.updateDebug();
@@ -87,6 +91,24 @@ export class WireWorld extends CellularAutomata {
       2: "yellow",
       3: "white"
     };
+
+
+    // <button id="clearelectronsbtn">Clear Electrons</button>
+    //document.getElementById("clearelectronsbtn");
+    this.clearElectronsBtn = document.createElement("button");
+    this.clearElectronsBtn.innerText = "Clear Electrons";
+    this.clearElectronsBtn.onclick = (event) => {
+      this.clearElectrons();
+    }
+    this.buttons.appendChild(this.clearElectronsBtn);
+  }
+
+  clearElectrons() {
+    for (let x = 0; x < this.grid.width; x++)
+      for (let y = 0; y < this.grid.height; y++)
+        if (this.grid.getCell(x, y) == 2 ||
+          this.grid.getCell(x, y) == 3)
+          this.grid.setCell(x, y, 1);
   }
 
   handleMouse(mouse) {
