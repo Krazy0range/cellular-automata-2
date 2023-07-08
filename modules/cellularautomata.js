@@ -109,7 +109,7 @@ export class Ultimata extends CellularAutomata {
 
     this.colorSettings = {
       0: "dimgray",
-      1: "lime",
+      1: "lightgreen",
       2: "yellow",
       3: "orange"
     };
