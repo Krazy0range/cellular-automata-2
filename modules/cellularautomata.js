@@ -2,13 +2,32 @@
 
 import { Grid } from "./grid.js";
 
+function getRandomItem(list) {
+  return list[Math.floor((Math.random() * list.length))];
+}
+
+function count(array, value) {
+  let count = 0;
+  array.forEach((element) => {
+    if (element == value)
+      count++;
+  });
+  return count;
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+}
+
 class CellularAutomata {
 
   constructor(canvas, gridDimensions) {
     this.canvas = canvas;
     this.gridDimensions = gridDimensions;
     this.grid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
-    this.gridSave = [];
+    this.workingGrid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
 
     this.currentInputCell = 1;
     this.simulationSpeed = 1;
@@ -60,11 +79,11 @@ class CellularAutomata {
   handleKeyboard(keyboard) { }
 
   saveGrid() {
-    this.gridSave = JSON.parse(JSON.stringify(this.grid.grid));
+    this.workingGrid.grid = JSON.parse(JSON.stringify(this.grid.grid));
   }
 
   applyGrid() {
-    this.grid.grid = JSON.parse(JSON.stringify(this.gridSave));
+    this.grid.grid = JSON.parse(JSON.stringify(this.workingGrid.grid));
   }
 
   getCellFromMousePos(mousePosition) {
@@ -74,14 +93,122 @@ class CellularAutomata {
       y: Math.floor(mousePosition.y / divisor)
     }
   }
+
+
 }
 
 export class Ultimata extends CellularAutomata {
 
   constructor(canvas, gridDimensions) {
     super(canvas, gridDimensions);
+
+    this.EMPTY = 0;
+    this.FOOD = 1;
+    this.PRODUCER = 2;
+    this.MOUTH = 3;
+
+    this.colorSettings = {
+      0: "dimgray",
+      1: "lime",
+      2: "yellow",
+      3: "orange"
+    };
+
+    this.instructions.innerHTML = `
+    <b>Instructions</b>
+    <p>
+      Left click to draw, right click to clear.
+      Press 1 for producer cells and press 2 for mouth cells.
+    </p>
+    <b>Rules</b>
+    <p>
+      Producers spawn food around them. Mouths eat neighboring food.
+    </p>
+    `;
   }
-  
+
+  handleMouse(mouse) {
+    let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
+
+    if (mouse.leftClick())
+      this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
+    if (mouse.rightClick())
+      this.grid.setCell(mouseCell.x, mouseCell.y, 0);
+  }
+
+  handleKeyboard(keyboard) {
+    if (keyboard.keys["Digit1"])
+      this.currentInputCell = 1;
+    if (keyboard.keys["Digit2"])
+      this.currentInputCell = 2;
+    if (keyboard.keys["Digit3"])
+      this.currentInputCell = 3;
+    if (keyboard.keysDown["Space"])
+      this.simulationSpeed = 1 - this.simulationSpeed;
+  }
+
+  singleUpdate() {
+    this.saveGrid();
+
+    for (let x = 0; x < this.grid.width; x++) {
+      for (let y = 0; y < this.grid.height; y++) {
+        const item = this.grid.getCell(x, y);
+
+        switch (item) {
+          case this.PRODUCER:
+            this.evalProducerCell(x, y);
+            break;
+          case this.MOUTH:
+            this.evalMouthCell(x, y);
+            break;
+        }
+
+      }
+    }
+
+    this.applyGrid();
+  }
+
+  evalProducerCell(x, y) {
+    const neighbors = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y + 1],
+      [x, y - 1],
+      [x + 1, y + 1],
+      [x - 1, y + 1],
+      [x + 1, y - 1],
+      [x - 1, y - 1]
+    ];
+
+    const emptyCells = neighbors.filter(i => this.grid.getCell(...i) == this.EMPTY);
+
+    if (emptyCells && emptyCells.length != 0) {
+      const randomCell = getRandomItem(emptyCells);
+      this.workingGrid.setCell(...randomCell, this.FOOD);
+    }
+  }
+
+  evalMouthCell(x, y) {
+    const neighbors = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y + 1],
+      [x, y - 1],
+      [x + 1, y + 1],
+      [x - 1, y + 1],
+      [x + 1, y - 1],
+      [x - 1, y - 1]
+    ];
+
+    const foodCells = neighbors.filter(i => this.grid.getCell(...i) == this.FOOD);
+
+    if (foodCells && foodCells.length != 0) {
+      const randomCell = getRandomItem(foodCells);
+      this.workingGrid.setCell(...randomCell, this.EMPTY);
+    }
+  }
+
 }
 
 export class WireWorld extends CellularAutomata {
@@ -102,19 +229,19 @@ export class WireWorld extends CellularAutomata {
     };
 
     this.instructions.innerHTML = `
-        <b>Instructions</b>
-        <p>
-          Left click to draw, right click to clear.
-          Press 1 to select wire cells, 2 for electron cells, and 3 for electron tail cells.
-          Press space to play/pause the simulation.
-        </p>
-        <b>Rules</b>
-        <p>
-          Empty cells do not change.
-          Wire cells become a electron cell if it has 1 or 2 neighboring electrons.
-          Electrons become electron tails, and electron tails become a wire cell.
-        </p>
-      `
+    <b>Instructions</b>
+    <p>
+      Left click to draw, right click to clear.
+      Press 1 to select wire cells, 2 for electron cells, and 3 for electron tail cells.
+      Press space to play/pause the simulation.
+    </p>
+    <b>Rules</b>
+    <p>
+      Empty cells do not change.
+      Wire cells become a electron cell if it has 1 or 2 neighboring electrons.
+      Electrons become electron tails, and electron tails become a wire cell.
+    </p>
+    `;
 
     // <button id="clearelectronsbtn">Clear Electrons</button>
     //document.getElementById("clearelectronsbtn");
@@ -192,7 +319,7 @@ export class WireWorld extends CellularAutomata {
             break;
         }
 
-        this.gridSave[x][y] = result;
+        this.workingGrid.setCell(x, y);
 
       }
     }
@@ -202,7 +329,7 @@ export class WireWorld extends CellularAutomata {
 
   evalWireCell(neighbors) {
 
-    const surroundingElectrons = this.#count(neighbors, this.ELECTRON);
+    const surroundingElectrons = count(neighbors, this.ELECTRON);
 
     if (surroundingElectrons == 1 || surroundingElectrons == 2)
       return this.ELECTRON;
@@ -210,14 +337,7 @@ export class WireWorld extends CellularAutomata {
     return this.WIRE;
   }
 
-  #count(array, value) {
-    let count = 0;
-    array.forEach((element) => {
-      if (element == value)
-        count++;
-    });
-    return count;
-  }
+
 
 }
 
@@ -272,7 +392,7 @@ export class ConwaysGameOfLife extends CellularAutomata {
             result = 0; break;
         }
 
-        this.gridSave[x][y] = result;
+        this.workingGrid.grid[x][y] = result;
 
       }
     }
