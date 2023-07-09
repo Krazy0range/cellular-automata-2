@@ -47,7 +47,7 @@ class CellularAutomata {
 
     this.stepBtn = document.getElementById("stepbtn");
     this.stepBtn.onclick = (event) => {
-      this.singleUpdate();
+      this.updateCells();
     }
 
 
@@ -65,7 +65,7 @@ class CellularAutomata {
   update() {
     this.updateDebug();
     for (let i = 0; i < this.simulationSpeed; i++)
-      this.singleUpdate();
+      this.updateCells();
   }
 
   updateDebug() {
@@ -73,10 +73,31 @@ class CellularAutomata {
     this.debug.innerHTML = simulationSpeedDebug;
   }
 
-  singleUpdate() { }
-
   handleMouse(mouse) { }
   handleKeyboard(keyboard) { }
+  
+  updateCells() { }
+
+  getNeighbors(x, y) {
+    return {
+      normal: [
+        [x + 1, y],
+        [x - 1, y],
+        [x, y + 1],
+        [x, y - 1]
+      ],
+      moore: [
+        [x + 1, y],
+        [x - 1, y],
+        [x, y + 1],
+        [x, y - 1],
+        [x + 1, y + 1],
+        [x - 1, y + 1],
+        [x + 1, y - 1],
+        [x - 1, y - 1]
+      ]
+    };
+  }
 
   saveGrid() {
     this.workingGrid.grid = JSON.parse(JSON.stringify(this.grid.grid));
@@ -104,62 +125,88 @@ export class Ultimata extends CellularAutomata {
 
     this.EMPTY = 0;
     this.FOOD = 1;
-    this.PRODUCER = 2;
-    this.MOUTH = 3;
+    this.PLANT = 2;
+    this.FOODPROP = 3;
+    this.FOODPROPTAIL = 4;
 
     this.colorSettings = {
       0: "dimgray",
-      1: "lightgreen",
-      2: "yellow",
-      3: "orange"
+      1: "yellow",
+      2: "seagreen",
+      3: "lime",
+      4: "lightgreen"
     };
 
     this.instructions.innerHTML = `
     <b>Instructions</b>
     <p>
-      Left click to draw, right click to clear.
-      Press 1 for producer cells and press 2 for mouth cells.
+      nu
+      too bad
     </p>
     <b>Rules</b>
     <p>
-      Producers spawn food around them. Mouths eat neighboring food.
+      NO
+      PLEASE
+      HELP
     </p>
     `;
   }
 
-  handleMouse(mouse) {
+  handleMouse(mouse, keyboard) {
     let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
 
     if (mouse.leftClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
     if (mouse.rightClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, 0);
+
+    if (mouse.leftClick() && keyboard.keys["ShiftLeft"]) {
+      const cells = this.getNeighbors(mouseCell.x, mouseCell.y).moore;
+      cells.forEach(cell => {
+        this.grid.setCell(...cell, this.currentInputCell);
+      });
+    }
   }
 
   handleKeyboard(keyboard) {
+    if (keyboard.keysDown["Space"])
+      this.simulationSpeed = 1 - this.simulationSpeed;
     if (keyboard.keys["Digit1"])
       this.currentInputCell = 1;
     if (keyboard.keys["Digit2"])
       this.currentInputCell = 2;
     if (keyboard.keys["Digit3"])
       this.currentInputCell = 3;
-    if (keyboard.keysDown["Space"])
-      this.simulationSpeed = 1 - this.simulationSpeed;
+    if (keyboard.keys["Digit4"])
+      this.currentInputCell = 4;
+    // if (keyboard.keys["Digit5"])
+    //   this.currentInputCell = 5;
+    // if (keyboard.keys["Digit6"])
+    //   this.currentInputCell = 6;
+    // if (keyboard.keys["Digit7"])
+    //   this.currentInputCell = 7;
+    // if (keyboard.keys["Digit8"])
+    //   this.currentInputCell = 8;
+    // if (keyboard.keys["Digit9"])
+    //   this.currentInputCell = 9;
   }
 
-  singleUpdate() {
+  updateCells() {
     this.saveGrid();
 
     for (let x = 0; x < this.grid.width; x++) {
       for (let y = 0; y < this.grid.height; y++) {
         const item = this.grid.getCell(x, y);
-
+        
         switch (item) {
-          case this.PRODUCER:
-            this.evalProducerCell(x, y);
+          case this.PLANT:
+            this.evalPlantCell(x, y);
             break;
-          case this.MOUTH:
-            this.evalMouthCell(x, y);
+          case this.FOODPROP:
+            this.evalFoodPropCell(x, y);
+            break;
+          case this.FOODPROPTAIL:
+            this.evalFoodPropTailCell(x, y);
             break;
         }
 
@@ -169,44 +216,43 @@ export class Ultimata extends CellularAutomata {
     this.applyGrid();
   }
 
-  evalProducerCell(x, y) {
-    const neighbors = [
-      [x + 1, y],
-      [x - 1, y],
-      [x, y + 1],
-      [x, y - 1],
-      [x + 1, y + 1],
-      [x - 1, y + 1],
-      [x + 1, y - 1],
-      [x - 1, y - 1]
-    ];
+  evalPlantCell(x, y) {
+    const neighbors = this.getNeighbors(x, y);
 
-    const emptyCells = neighbors.filter(i => this.grid.getCell(...i) == this.EMPTY);
+    const foodCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.FOOD);
+    const foodFound = foodCells.length != 0;
 
-    if (emptyCells && emptyCells.length != 0) {
-      const randomCell = getRandomItem(emptyCells);
-      this.workingGrid.setCell(...randomCell, this.FOOD);
+    if (foodFound) {
+      this.workingGrid.setCell(x, y, this.FOODPROP);
+      foodCells.forEach(cell => {
+        this.workingGrid.setCell(...cell, this.EMPTY);
+      });
     }
   }
 
-  evalMouthCell(x, y) {
-    const neighbors = [
-      [x + 1, y],
-      [x - 1, y],
-      [x, y + 1],
-      [x, y - 1],
-      [x + 1, y + 1],
-      [x - 1, y + 1],
-      [x + 1, y - 1],
-      [x - 1, y - 1]
-    ];
+  evalFoodPropCell(x, y) {
+    const neighbors = this.getNeighbors(x, y);
 
-    const foodCells = neighbors.filter(i => this.grid.getCell(...i) == this.FOOD);
+    const plantCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.PLANT);
 
-    if (foodCells && foodCells.length != 0) {
-      const randomCell = getRandomItem(foodCells);
-      this.workingGrid.setCell(...randomCell, this.EMPTY);
-    }
+    plantCells.forEach(cell => {
+      this.workingGrid.setCell(...cell, this.FOODPROP);
+    });
+    this.workingGrid.setCell(x, y, this.FOODPROPTAIL);
+  }
+
+  evalFoodPropTailCell(x, y) {
+    const neighbors = this.getNeighbors(x, y);
+    const emptyCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.EMPTY);
+    const safeCells = emptyCells.filter(cell => {
+      const cellNeighbors = this.getNeighbors(...cell).normal;
+      const safe = !cellNeighbors.find(neighbor => this.grid.getCell(...neighbor) == this.FOODPROP);
+      return safe;
+    });
+    this.workingGrid.setCell(x, y, this.PLANT);
+    safeCells.forEach(cell => {
+      this.workingGrid.setCell(...cell, this.PLANT);
+    });
   }
 
 }
@@ -281,7 +327,7 @@ export class WireWorld extends CellularAutomata {
       this.simulationSpeed = 1 - this.simulationSpeed;
   }
 
-  singleUpdate() {
+  updateCells() {
     this.saveGrid();
 
     for (let x = 0; x < this.grid.width; x++) {
@@ -368,7 +414,7 @@ export class ConwaysGameOfLife extends CellularAutomata {
       this.simulationSpeed = 1 - this.simulationSpeed;
   }
 
-  singleUpdate() {
+  updateCells() {
     this.saveGrid()
 
     for (let x = 0; x < this.grid.width; x++) {

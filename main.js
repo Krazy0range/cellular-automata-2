@@ -6,7 +6,7 @@ import { Mouse, Keyboard } from "./modules/input.js";
 import { GameOfLifePatterns } from "./modules/patterns.js";
 
 function handleInput() {
-  cellularAutomata.handleMouse(mouse);
+  cellularAutomata.handleMouse(mouse, keyboard);
   cellularAutomata.handleKeyboard(keyboard);
 }
 
@@ -34,7 +34,7 @@ function loop(timestamp) {
 const canvasResolutionDimensions = { width: 2500, height: 2500 };
 const canvas = new Canvas(canvasResolutionDimensions);
 
-const gridDimensions = { width: 25, height: 25 };
+const gridDimensions = { width: 50, height: 50 };
 const cellSize = canvas.resolutionWidth / gridDimensions.width;
 const cellularAutomata = new Ultimata(canvas, gridDimensions);
 
