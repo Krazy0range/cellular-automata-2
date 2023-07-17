@@ -75,7 +75,7 @@ class CellularAutomata {
 
   handleMouse(mouse) { }
   handleKeyboard(keyboard) { }
-  
+
   updateCells() { }
 
   getNeighbors(x, y) {
@@ -196,8 +196,9 @@ export class Ultimata extends CellularAutomata {
 
     for (let x = 0; x < this.grid.width; x++) {
       for (let y = 0; y < this.grid.height; y++) {
+
         const item = this.grid.getCell(x, y);
-        
+
         switch (item) {
           case this.PLANT:
             this.evalPlantCell(x, y);
@@ -234,7 +235,7 @@ export class Ultimata extends CellularAutomata {
     const neighbors = this.getNeighbors(x, y);
 
     const plantCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.PLANT);
-
+    
     plantCells.forEach(cell => {
       this.workingGrid.setCell(...cell, this.FOODPROP);
     });
@@ -243,16 +244,10 @@ export class Ultimata extends CellularAutomata {
 
   evalFoodPropTailCell(x, y) {
     const neighbors = this.getNeighbors(x, y);
-    const emptyCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.EMPTY);
-    const safeCells = emptyCells.filter(cell => {
-      const cellNeighbors = this.getNeighbors(...cell).normal;
-      const safe = !cellNeighbors.find(neighbor => this.grid.getCell(...neighbor) == this.FOODPROP);
-      return safe;
-    });
-    this.workingGrid.setCell(x, y, this.PLANT);
-    safeCells.forEach(cell => {
+    neighbors.moore.forEach(cell => {
       this.workingGrid.setCell(...cell, this.PLANT);
     });
+    this.workingGrid.setCell(x, y, this.PLANT);
   }
 
 }
