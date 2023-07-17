@@ -124,17 +124,15 @@ export class Ultimata extends CellularAutomata {
     super(canvas, gridDimensions);
 
     this.EMPTY = 0;
-    this.FOOD = 1;
-    this.PLANT = 2;
-    this.FOODPROP = 3;
-    this.FOODPROPTAIL = 4;
+    this.NUCLEUS = 1;
+    this.DENDRITE = 2;
+    this.AXON = 3;
 
     this.colorSettings = {
       0: "dimgray",
-      1: "yellow",
-      2: "seagreen",
-      3: "lime",
-      4: "lightgreen"
+      1: "blue",
+      2: "red",
+      3: "orange"
     };
 
     this.instructions.innerHTML = `
@@ -177,8 +175,8 @@ export class Ultimata extends CellularAutomata {
       this.currentInputCell = 2;
     if (keyboard.keys["Digit3"])
       this.currentInputCell = 3;
-    if (keyboard.keys["Digit4"])
-      this.currentInputCell = 4;
+    // if (keyboard.keys["Digit4"])
+    //   this.currentInputCell = 4;
     // if (keyboard.keys["Digit5"])
     //   this.currentInputCell = 5;
     // if (keyboard.keys["Digit6"])
@@ -200,15 +198,7 @@ export class Ultimata extends CellularAutomata {
         const item = this.grid.getCell(x, y);
 
         switch (item) {
-          case this.PLANT:
-            this.evalPlantCell(x, y);
-            break;
-          case this.FOODPROP:
-            this.evalFoodPropCell(x, y);
-            break;
-          case this.FOODPROPTAIL:
-            this.evalFoodPropTailCell(x, y);
-            break;
+
         }
 
       }
@@ -235,7 +225,7 @@ export class Ultimata extends CellularAutomata {
     const neighbors = this.getNeighbors(x, y);
 
     const plantCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.PLANT);
-    
+
     plantCells.forEach(cell => {
       this.workingGrid.setCell(...cell, this.FOODPROP);
     });
