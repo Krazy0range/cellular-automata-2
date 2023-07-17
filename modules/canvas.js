@@ -32,7 +32,7 @@ export class Canvas {
   renderGrid(grid, cellSize, colorSettings) {
     for (let row = 0; row < grid.width; row++) {
       for (let column = 0; column < grid.height; column++) {
-        const item = grid.grid[row][column];
+        const item = grid.getCell(row, column);
         const cellX = row * cellSize;
         const cellY = column * cellSize;
         this.drawCell(cellX, cellY, cellSize, colorSettings[item]);
