@@ -9,28 +9,24 @@ export class Grid {
     this.initGrid(startingValue);
   }
 
-  convertLegacyCell(value) {
-    return {cell: value, data: 0};
-  }
-
   initGrid(value) {
     this.grid = Array(this.width);
     for (let x = 0; x < this.width; x++)
-      this.grid[x] = Array(this.height).fill(this.convertLegacyCell(value));
+      this.grid[x] = Array(this.height).fill(value);
   }
 
   setCell(x, y, value) {
     if (x < 0 || x >= this.width) return;
     if (y < 0 || y >= this.height) return;
 
-    this.grid[x][y] = this.convertLegacyCell(value);
+    this.grid[x][y] = value;
   }
 
   getCell(x, y) {
     if (x < 0 || x >= this.width) return {cell: 0, data: 0};
     if (y < 0 || y >= this.height) return {cell: 0, data: 0};
 
-    return this.grid[x][y].cell;
+    return this.grid[x][y];
 
   }
 

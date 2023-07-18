@@ -25,11 +25,14 @@ class CellularAutomata {
 
   constructor(canvas, gridDimensions) {
     this.canvas = canvas;
-    this.gridDimensions = gridDimensions;
-    this.grid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
-    this.workingGrid = new Grid(this.gridDimensions.width, this.gridDimensions.height, 0);
 
-    this.currentInputCell = 1;
+    this.EMPTY = { cell: 0, data: 0 };
+    this.currentInputCell = this.EMPTY;
+
+    this.gridDimensions = gridDimensions;
+    this.grid = new Grid(this.gridDimensions.width, this.gridDimensions.height, this.EMPTY);
+    this.workingGrid = new Grid(this.gridDimensions.width, this.gridDimensions.height, this.EMPTY);
+
     this.simulationSpeed = 1;
 
     this.colorSettings = {
@@ -50,7 +53,6 @@ class CellularAutomata {
       this.updateCells();
     }
 
-
     this.debug = document.getElementById("debugtext")
     this.debug.innerText = "loading...";
   }
@@ -61,6 +63,7 @@ class CellularAutomata {
         this.grid.setCell(x, y, 0);
   }
 
+  mobileGridPlacement() {}
 
   update() {
     this.updateDebug();
@@ -69,8 +72,29 @@ class CellularAutomata {
   }
 
   updateDebug() {
-    const simulationSpeedDebug = `simulationSpeed = ${this.simulationSpeed};`;
+    const simulationSpeedDebug = this.simulationSpeedDebug();
+    const gridDebug = this.gridDebug();
+    
     this.debug.innerHTML = simulationSpeedDebug;
+  }
+
+  gridDebug() {
+    const gridText = this.grid.grid.flat().reduce((accumulator, currentValue, currentIndex) => {
+      let value = accumulator;
+      if (currentIndex % this.grid.width == 0)
+        value += "<br>";
+      else
+        value += " ";
+      value += currentValue.data.toString();
+      return value;
+    }, "");
+    const gridDebug = "gridData =" + gridText;
+    return gridDebug;
+  }
+
+  simulationSpeedDebug() {
+    const simulationSpeedDebug = `simulationSpeed = ${this.simulationSpeed};<br>`;
+    return simulationSpeedDebug;
   }
 
   handleMouse(mouse) { }
@@ -118,21 +142,17 @@ class CellularAutomata {
 
 }
 
-export class Ultimata extends CellularAutomata {
+export class Physics extends CellularAutomata {
 
   constructor(canvas, gridDimensions) {
     super(canvas, gridDimensions);
 
-    this.EMPTY = 0;
-    this.NUCLEUS = 1;
-    this.DENDRITE = 2;
-    this.AXON = 3;
+    this.EMPTY = { cell: 0, data: 0 };
+    this.SAND = { cell: 1, data: 0 };
 
     this.colorSettings = {
       0: "dimgray",
-      1: "blue",
-      2: "red",
-      3: "orange"
+      1: "yellow"
     };
 
     this.instructions.innerHTML = `
@@ -148,6 +168,13 @@ export class Ultimata extends CellularAutomata {
       HELP
     </p>
     `;
+  }
+
+  // TODO: STILL DEBUGGING THE TIMER CELL :/
+
+  mobileGridPlacement() {
+    this.simulationSpeed = 0;
+    this.grid.setCell(1, 1, this.TIMER);
   }
 
   handleMouse(mouse, keyboard) {
@@ -170,11 +197,11 @@ export class Ultimata extends CellularAutomata {
     if (keyboard.keysDown["Space"])
       this.simulationSpeed = 1 - this.simulationSpeed;
     if (keyboard.keys["Digit1"])
-      this.currentInputCell = 1;
-    if (keyboard.keys["Digit2"])
-      this.currentInputCell = 2;
-    if (keyboard.keys["Digit3"])
-      this.currentInputCell = 3;
+      this.currentInputCell = this.TIMER;
+    // if (keyboard.keys["Digit2"])
+    //   this.currentInputCell = 2;
+    // if (keyboard.keys["Digit3"])
+    //   this.currentInputCell = 3;
     // if (keyboard.keys["Digit4"])
     //   this.currentInputCell = 4;
     // if (keyboard.keys["Digit5"])
@@ -195,10 +222,11 @@ export class Ultimata extends CellularAutomata {
     for (let x = 0; x < this.grid.width; x++) {
       for (let y = 0; y < this.grid.height; y++) {
 
-        const item = this.grid.getCell(x, y);
+        const cell = this.grid.getCell(x, y);
 
-        switch (item) {
-
+        switch (cell.cell) {
+          case this.TIMER.cell:
+            this.evalTimer(cell, x, y);
         }
 
       }
@@ -207,37 +235,16 @@ export class Ultimata extends CellularAutomata {
     this.applyGrid();
   }
 
-  evalPlantCell(x, y) {
-    const neighbors = this.getNeighbors(x, y);
+  evalTimer(cell, x, y) {
 
-    const foodCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.FOOD);
-    const foodFound = foodCells.length != 0;
-
-    if (foodFound) {
-      this.workingGrid.setCell(x, y, this.FOODPROP);
-      foodCells.forEach(cell => {
-        this.workingGrid.setCell(...cell, this.EMPTY);
-      });
+    if (cell.data == 0) {
+      this.workingGrid.setCell(x, y, this.EMPTY);
+      return;
     }
-  }
 
-  evalFoodPropCell(x, y) {
-    const neighbors = this.getNeighbors(x, y);
-
-    const plantCells = neighbors.normal.filter(cell => this.grid.getCell(...cell) == this.PLANT);
-
-    plantCells.forEach(cell => {
-      this.workingGrid.setCell(...cell, this.FOODPROP);
-    });
-    this.workingGrid.setCell(x, y, this.FOODPROPTAIL);
-  }
-
-  evalFoodPropTailCell(x, y) {
-    const neighbors = this.getNeighbors(x, y);
-    neighbors.moore.forEach(cell => {
-      this.workingGrid.setCell(...cell, this.PLANT);
-    });
-    this.workingGrid.setCell(x, y, this.PLANT);
+    const cellData = cell.data;
+    const decreasedTimer = { cell: 1, data: cellData - 1 };
+    this.workingGrid.setCell(x, y, decreasedTimer);
   }
 
 }
