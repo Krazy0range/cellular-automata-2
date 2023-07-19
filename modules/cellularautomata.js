@@ -60,10 +60,10 @@ class CellularAutomata {
   resetGrid() {
     for (let x = 0; x < this.grid.width; x++)
       for (let y = 0; y < this.grid.height; y++)
-        this.grid.setCell(x, y, 0);
+        this.grid.setCell(x, y, this.EMPTY);
   }
 
-  mobileGridPlacement() {}
+  mobileGridPlacement() { }
 
   update() {
     this.updateDebug();
@@ -74,7 +74,7 @@ class CellularAutomata {
   updateDebug() {
     const simulationSpeedDebug = this.simulationSpeedDebug();
     const gridDebug = this.gridDebug();
-    
+
     this.debug.innerHTML = simulationSpeedDebug;
   }
 
@@ -148,11 +148,13 @@ export class Physics extends CellularAutomata {
     super(canvas, gridDimensions);
 
     this.EMPTY = { cell: 0, data: 0 };
-    this.SAND = { cell: 1, data: 0 };
+    this.MOVER = { cell: 1, data: 0 };
+    this.WALL = { cell: 2, data: 0 };
 
     this.colorSettings = {
       0: "dimgray",
-      1: "yellow"
+      1: "yellow",
+      2: "black"
     };
 
     this.instructions.innerHTML = `
@@ -183,7 +185,7 @@ export class Physics extends CellularAutomata {
     if (mouse.leftClick())
       this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
     if (mouse.rightClick())
-      this.grid.setCell(mouseCell.x, mouseCell.y, 0);
+      this.grid.setCell(mouseCell.x, mouseCell.y, this.EMPTY);
 
     if (mouse.leftClick() && keyboard.keys["ShiftLeft"]) {
       const cells = this.getNeighbors(mouseCell.x, mouseCell.y).moore;
@@ -197,9 +199,9 @@ export class Physics extends CellularAutomata {
     if (keyboard.keysDown["Space"])
       this.simulationSpeed = 1 - this.simulationSpeed;
     if (keyboard.keys["Digit1"])
-      this.currentInputCell = this.TIMER;
-    // if (keyboard.keys["Digit2"])
-    //   this.currentInputCell = 2;
+      this.currentInputCell = this.MOVER;
+    if (keyboard.keys["Digit2"])
+      this.currentInputCell = this.WALL;
     // if (keyboard.keys["Digit3"])
     //   this.currentInputCell = 3;
     // if (keyboard.keys["Digit4"])
@@ -225,8 +227,8 @@ export class Physics extends CellularAutomata {
         const cell = this.grid.getCell(x, y);
 
         switch (cell.cell) {
-          case this.TIMER.cell:
-            this.evalTimer(cell, x, y);
+          case this.MOVER.cell:
+            this.evalMover(cell, x, y);
         }
 
       }
@@ -235,16 +237,14 @@ export class Physics extends CellularAutomata {
     this.applyGrid();
   }
 
-  evalTimer(cell, x, y) {
-
-    if (cell.data == 0) {
+  evalMover(cell, x, y) {
+    const neighbors = this.getNeighbors(x, y);
+    const emptyCells = neighbors.moore.filter(cell => this.workingGrid.getCell(...cell).cell == this.EMPTY.cell);
+    if (emptyCells.length != 0) {
+      const randomEmptyCell = getRandomItem(emptyCells);
+      this.workingGrid.setCell(...randomEmptyCell, this.MOVER);
       this.workingGrid.setCell(x, y, this.EMPTY);
-      return;
     }
-
-    const cellData = cell.data;
-    const decreasedTimer = { cell: 1, data: cellData - 1 };
-    this.workingGrid.setCell(x, y, decreasedTimer);
   }
 
 }
