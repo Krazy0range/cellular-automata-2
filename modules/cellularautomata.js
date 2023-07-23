@@ -234,16 +234,37 @@ export class Physics extends CellularAutomata {
       }
     }
 
+    this.resetCellMoves();
+
     this.applyGrid();
   }
 
   evalMover(cell, x, y) {
+    if (cell.data == 1)
+      return;
+
     const neighbors = this.getNeighbors(x, y);
     const emptyCells = neighbors.moore.filter(cell => this.workingGrid.getCell(...cell).cell == this.EMPTY.cell);
-    if (emptyCells.length != 0) {
-      const randomEmptyCell = getRandomItem(emptyCells);
-      this.workingGrid.setCell(...randomEmptyCell, this.MOVER);
-      this.workingGrid.setCell(x, y, this.EMPTY);
+    const fallCells = emptyCells.filter(cell => cell[1] > y);
+
+    if (fallCells.length == 0)
+      return;
+
+    const optimalFallCell = [x, y + 1];
+    const fallCellOpen = this.grid.getCell(...optimalFallCell).cell == this.EMPTY.cell;
+
+    const newPosition = fallCellOpen ? optimalFallCell : getRandomItem(fallCells);
+    const movedCell = { ...this.MOVER, data: 1 };
+    this.workingGrid.setCell(...newPosition, movedCell);
+    this.workingGrid.setCell(x, y, this.EMPTY);
+  }
+
+  resetCellMoves() {
+    for (let x = 0; x < this.grid.width; x++) {
+      for (let y = 0; y < this.grid.height; y++) {
+        if (this.workingGrid.getCell(x, y).cell == this.MOVER.cell)
+          this.workingGrid.setCell(x, y, this.MOVER);
+      }
     }
   }
 

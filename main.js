@@ -36,7 +36,7 @@ const canvas = new Canvas(canvasResolutionDimensions);
 
 const gridDimensions = { width: 50, height: 50 };
 const cellSize = canvas.resolutionWidth / gridDimensions.width;
-const cellularAutomata = new Physics(canvas, gridDimensions);
+const cellularAutomata = new WireWorld(canvas, gridDimensions);
 
 const mouse = new Mouse(canvas);
 const keyboard = new Keyboard();
