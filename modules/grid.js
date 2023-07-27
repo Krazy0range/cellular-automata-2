@@ -23,8 +23,8 @@ export class Grid {
   }
 
   getCell(x, y) {
-    if (x < 0 || x >= this.width) return {cell: 0, data: 0};
-    if (y < 0 || y >= this.height) return {cell: 0, data: 0};
+    if (x < 0 || x >= this.width) return 0;
+    if (y < 0 || y >= this.height) return 0;
 
     return this.grid[x][y];
 

@@ -26,7 +26,7 @@ class CellularAutomata {
   constructor(canvas, gridDimensions) {
     this.canvas = canvas;
 
-    this.EMPTY = { cell: 0, data: 0 };
+    this.EMPTY = 0;
     this.currentInputCell = this.EMPTY;
 
     this.gridDimensions = gridDimensions;
@@ -65,31 +65,35 @@ class CellularAutomata {
 
   mobileGridPlacement() { }
 
+  offload() { }
+
+  reload() {
+    this.reloadButtons();
+    this.reloadInfo();
+    this.reloadSpecificButtons();
+  }
+
+  reloadButtons() {
+    this.clearBtn.onclick = (event) => {
+      this.resetGrid();
+    }
+    this.stepBtn.onclick = (event) => {
+      this.updateCells();
+    }
+    this.reloadSpecificButtons()
+  }
+  reloadInfo() { }
+  reloadSpecificButtons() { }
+  
   update() {
     this.updateDebug();
     for (let i = 0; i < this.simulationSpeed; i++)
       this.updateCells();
   }
-
+  
   updateDebug() {
     const simulationSpeedDebug = this.simulationSpeedDebug();
-    const gridDebug = this.gridDebug();
-
     this.debug.innerHTML = simulationSpeedDebug;
-  }
-
-  gridDebug() {
-    const gridText = this.grid.grid.flat().reduce((accumulator, currentValue, currentIndex) => {
-      let value = accumulator;
-      if (currentIndex % this.grid.width == 0)
-        value += "<br>";
-      else
-        value += " ";
-      value += currentValue.data.toString();
-      return value;
-    }, "");
-    const gridDebug = "gridData =" + gridText;
-    return gridDebug;
   }
 
   simulationSpeedDebug() {
@@ -142,134 +146,6 @@ class CellularAutomata {
 
 }
 
-export class Physics extends CellularAutomata {
-
-  constructor(canvas, gridDimensions) {
-    super(canvas, gridDimensions);
-
-    this.EMPTY = { cell: 0, data: 0 };
-    this.MOVER = { cell: 1, data: 0 };
-    this.WALL = { cell: 2, data: 0 };
-
-    this.colorSettings = {
-      0: "dimgray",
-      1: "yellow",
-      2: "black"
-    };
-
-    this.instructions.innerHTML = `
-    <b>Instructions</b>
-    <p>
-      nu
-      too bad
-    </p>
-    <b>Rules</b>
-    <p>
-      NO
-      PLEASE
-      HELP
-    </p>
-    `;
-  }
-
-  // TODO: STILL DEBUGGING THE TIMER CELL :/
-
-  mobileGridPlacement() {
-    this.simulationSpeed = 0;
-    this.grid.setCell(1, 1, this.TIMER);
-  }
-
-  handleMouse(mouse, keyboard) {
-    let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
-
-    if (mouse.leftClick())
-      this.grid.setCell(mouseCell.x, mouseCell.y, this.currentInputCell);
-    if (mouse.rightClick())
-      this.grid.setCell(mouseCell.x, mouseCell.y, this.EMPTY);
-
-    if (mouse.leftClick() && keyboard.keys["ShiftLeft"]) {
-      const cells = this.getNeighbors(mouseCell.x, mouseCell.y).moore;
-      cells.forEach(cell => {
-        this.grid.setCell(...cell, this.currentInputCell);
-      });
-    }
-  }
-
-  handleKeyboard(keyboard) {
-    if (keyboard.keysDown["Space"])
-      this.simulationSpeed = 1 - this.simulationSpeed;
-    if (keyboard.keys["Digit1"])
-      this.currentInputCell = this.MOVER;
-    if (keyboard.keys["Digit2"])
-      this.currentInputCell = this.WALL;
-    // if (keyboard.keys["Digit3"])
-    //   this.currentInputCell = 3;
-    // if (keyboard.keys["Digit4"])
-    //   this.currentInputCell = 4;
-    // if (keyboard.keys["Digit5"])
-    //   this.currentInputCell = 5;
-    // if (keyboard.keys["Digit6"])
-    //   this.currentInputCell = 6;
-    // if (keyboard.keys["Digit7"])
-    //   this.currentInputCell = 7;
-    // if (keyboard.keys["Digit8"])
-    //   this.currentInputCell = 8;
-    // if (keyboard.keys["Digit9"])
-    //   this.currentInputCell = 9;
-  }
-
-  updateCells() {
-    this.saveGrid();
-
-    for (let x = 0; x < this.grid.width; x++) {
-      for (let y = 0; y < this.grid.height; y++) {
-
-        const cell = this.grid.getCell(x, y);
-
-        switch (cell.cell) {
-          case this.MOVER.cell:
-            this.evalMover(cell, x, y);
-        }
-
-      }
-    }
-
-    this.resetCellMoves();
-
-    this.applyGrid();
-  }
-
-  evalMover(cell, x, y) {
-    if (cell.data == 1)
-      return;
-
-    const neighbors = this.getNeighbors(x, y);
-    const emptyCells = neighbors.moore.filter(cell => this.workingGrid.getCell(...cell).cell == this.EMPTY.cell);
-    const fallCells = emptyCells.filter(cell => cell[1] > y);
-
-    if (fallCells.length == 0)
-      return;
-
-    const optimalFallCell = [x, y + 1];
-    const fallCellOpen = this.grid.getCell(...optimalFallCell).cell == this.EMPTY.cell;
-
-    const newPosition = fallCellOpen ? optimalFallCell : getRandomItem(fallCells);
-    const movedCell = { ...this.MOVER, data: 1 };
-    this.workingGrid.setCell(...newPosition, movedCell);
-    this.workingGrid.setCell(x, y, this.EMPTY);
-  }
-
-  resetCellMoves() {
-    for (let x = 0; x < this.grid.width; x++) {
-      for (let y = 0; y < this.grid.height; y++) {
-        if (this.workingGrid.getCell(x, y).cell == this.MOVER.cell)
-          this.workingGrid.setCell(x, y, this.MOVER);
-      }
-    }
-  }
-
-}
-
 export class WireWorld extends CellularAutomata {
 
   constructor(canvas, gridDimensions) {
@@ -287,6 +163,11 @@ export class WireWorld extends CellularAutomata {
       3: "white"
     };
 
+    this.reloadInfo();
+    this.reloadButtons();
+  }
+
+  reloadInfo() {
     this.instructions.innerHTML = `
     <b>Instructions</b>
     <p>
@@ -301,15 +182,23 @@ export class WireWorld extends CellularAutomata {
       Electrons become electron tails, and electron tails become a wire cell.
     </p>
     `;
+  }
 
-    // <button id="clearelectronsbtn">Clear Electrons</button>
-    //document.getElementById("clearelectronsbtn");
-    this.clearElectronsBtn = document.createElement("button");
-    this.clearElectronsBtn.innerText = "Clear Electrons";
-    this.clearElectronsBtn.onclick = (event) => {
-      this.clearElectrons();
+  reloadSpecificButtons() {
+    if (!document.getElementById("clearelectronsbtn")) {
+      this.clearElectronsBtn = document.createElement("button");
+      this.clearElectronsBtn.id = "clearelectronsbtn"
+      this.clearElectronsBtn.innerText = "Clear Electrons";
+      this.clearElectronsBtn.onclick = (event) => {
+        this.clearElectrons();
+      }
+      this.buttons.appendChild(this.clearElectronsBtn);
     }
-    this.buttons.appendChild(this.clearElectronsBtn);
+  }
+
+  offload() {
+    const btn = document.getElementById("clearelectronsbtn");
+    btn.remove();
   }
 
   clearElectrons() {
@@ -378,7 +267,7 @@ export class WireWorld extends CellularAutomata {
             break;
         }
 
-        this.workingGrid.setCell(x, y);
+        this.workingGrid.setCell(x, y, result);
 
       }
     }
@@ -395,9 +284,6 @@ export class WireWorld extends CellularAutomata {
 
     return this.WIRE;
   }
-
-
-
 }
 
 export class ConwaysGameOfLife extends CellularAutomata {
@@ -411,6 +297,24 @@ export class ConwaysGameOfLife extends CellularAutomata {
       2: "red",
       3: "blue"
     }
+
+    this.reloadInfo();
+  }
+
+  reloadInfo() {
+    this.instructions.innerHTML = `
+    <b>Instructions</b>
+    <p>
+      Left click to draw living cells. Right click to draw dead cells.
+      Press space to play/pause the simulation.
+    </p>
+    <b>Rules</b>
+    <p>
+      A dead cell becomes alive if it has by 3 living neighbors.
+      A living cell persists if it is surrounded by 2 or 3 other living cells.
+      A cell dies if it has less than 2 or greater than 3 living neighbors.
+    </p>
+    `;
   }
 
   handleMouse(mouse) {

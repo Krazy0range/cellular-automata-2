@@ -18,13 +18,12 @@ body {
   width: 300px;
 }
 
-#buttons {
+.buttons {
   padding: 10px;
 }
 
 #debug {
   padding: 10px;
-  width: 1000px;
 }
 
 canvas {
