@@ -567,10 +567,10 @@ export class Computer extends CellularAutomata {
             result = this.CROSSWIRE;
             break;
           case this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL:
-            result = this.CROSSWIRE_ELECTRON_HORIZONTAL;
-            break;
-          case this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL:
-            result = this.CROSSWIRE_ELECTRON_VERTICAL;
+            result = this.evalCrosswireElectronHorizontalElectrontailVerticalCell(x, y); // TODO: fix when there is another electron tail coming right after it
+            break;                                                                       //
+          case this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL:                 //
+            result = this.evalCrosswireElectronVerticalElectrontailHorizontalCell(x, y); //
             break;
           default:
             result = item;
@@ -739,6 +739,9 @@ export class Computer extends CellularAutomata {
     if (gateCell == or && (inputA == one || inputB == one))
       return true;
 
+    if (gateCell == not && inputA == one)
+      return false;
+
     if (gateCell == not && inputA != one)
       return true;
     
@@ -761,4 +764,36 @@ export class Computer extends CellularAutomata {
     else
       return this.CROSSWIRE;
   }
+
+  evalCrosswireElectronHorizontalElectrontailVerticalCell(x, y) {
+    const horizontalNeighbors = [
+      this.grid.getCell(x + 1, y),
+      this.grid.getCell(x - 1, y)
+    ];
+
+    const horizontalElectrontails = count(horizontalNeighbors, this.ELECTRONTAIL)
+
+    if (horizontalElectrontails > 0)
+      return this.CROSSWIRE_ELECTRONTAIL_HORIZONTAL;
+    else
+      return this.CROSSWIRE_ELECTRON_HORIZONTAL;
+  }
+
+  evalCrosswireElectronVerticalElectrontailHorizontalCell(x, y) {
+    const verticalNeighbors = [
+      this.grid.getCell(x, y + 1),
+      this.grid.getCell(x, y - 1)
+    ];
+
+    const verticalElectrontails = count(verticalNeighbors, this.ELECTRONTAIL);
+
+    if (verticalElectrontails > 0)
+      return this.CROSSWIRE_ELECTRONTAIL_VERTICAL;
+    else
+      return this.CROSSWIRE_ELECTRON_VERTICAL;
+  }
+
+  // TODO: TEST THESE TWO FUNCTIONS
+  // TODO: BUILD FULL ADDER
+  // TODO? IMPLEMENT CUSTOM CIRCUITS <- would cross the boundaries of cellular automata but still very pog
 }
