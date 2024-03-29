@@ -431,10 +431,7 @@ export class Computer extends CellularAutomata {
     </p>
     <b>Rules</b>
     <p>
-      Empty cells do not change.
-      Wire cells become a electron cell if it has 1 or 2 neighboring electrons.
-      Electrons become electron tails, and electron tails become a wire cell.
-      Gates are in development lol
+      Idk figure it out lol
     </p>
     `;
   }
