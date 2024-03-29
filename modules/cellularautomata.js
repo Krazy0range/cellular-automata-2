@@ -623,7 +623,10 @@ export class Computer extends CellularAutomata {
       this.grid.getCell(x, y + 1),
       this.grid.getCell(x, y - 1)
     ];
-    const verticalElectronTails = count(verticalNeighbors, this.ELECTRONTAIL);
+    const verticalElectronTails = count(verticalNeighbors, this.ELECTRONTAIL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRONTAIL_VERTICAL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRONTAIL_BOTH);
     if (verticalElectronTails > 0)
       return this.CROSSWIRE_ELECTRONTAIL_VERTICAL;
 
@@ -631,7 +634,10 @@ export class Computer extends CellularAutomata {
       this.grid.getCell(x + 1, y),
       this.grid.getCell(x - 1, y)
     ];
-    const horizontalElectrons = count(horizontalNeighbors, this.ELECTRON);
+    const horizontalElectrons = count(horizontalNeighbors, this.ELECTRON)
+                              + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL)
+                              + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_BOTH)
+                              + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL);
     if (horizontalElectrons > 0)
       return this.CROSSWIRE_ELECTRON_BOTH;
     
@@ -644,6 +650,9 @@ export class Computer extends CellularAutomata {
       this.grid.getCell(x - 1, y)
     ];
     const horizontalElectronTails = count(horizontalNeighbors, this.ELECTRONTAIL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRONTAIL_HORIZONTAL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRONTAIL_BOTH);
     if (horizontalElectronTails > 0)
       return this.CROSSWIRE_ELECTRONTAIL_HORIZONTAL;
 
@@ -652,7 +661,10 @@ export class Computer extends CellularAutomata {
       this.grid.getCell(x, y + 1),
       this.grid.getCell(x, y - 1)
     ];
-    const verticalElectrons = count(verticalNeighbors, this.ELECTRON);
+    const verticalElectrons = count(verticalNeighbors, this.ELECTRON)
+                            + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL)
+                            + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_BOTH)
+                            + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL);
     if (verticalElectrons > 0)
       return this.CROSSWIRE_ELECTRON_BOTH;
 
@@ -669,8 +681,14 @@ export class Computer extends CellularAutomata {
       this.grid.getCell(x - 1, y)
     ];
 
-    const verticalElectronTails = count(verticalNeighbors, this.ELECTRONTAIL);
-    const horizontalElectronTails = count(horizontalNeighbors, this.ELECTRONTAIL);
+    const verticalElectronTails = count(verticalNeighbors, this.ELECTRONTAIL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRONTAIL_VERTICAL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL)
+                                + count(verticalNeighbors, this.CROSSWIRE_ELECTRONTAIL_BOTH);
+    const horizontalElectronTails = count(horizontalNeighbors, this.ELECTRONTAIL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRONTAIL_HORIZONTAL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL)
+                                  + count(horizontalNeighbors, this.CROSSWIRE_ELECTRONTAIL_BOTH);
 
     if (verticalElectronTails > 0 && horizontalElectronTails > 0)
       return this.CROSSWIRE_ELECTRONTAIL_BOTH;
@@ -752,8 +770,27 @@ export class Computer extends CellularAutomata {
   }
 
   evalCrosswireCell(x, y) {
-    const vertical = this.grid.getCell(x, y + 1) == this.ELECTRON || this.grid.getCell(x, y - 1) == this.ELECTRON;
-    const horizontal = this.grid.getCell(x + 1, y) == this.ELECTRON || this.grid.getCell(x - 1, y) == this.ELECTRON;
+    const verticalNeighbors = [
+      this.grid.getCell(x, y + 1),
+      this.grid.getCell(x, y - 1)
+    ];
+    const horizontalNeighbors = [
+      this.grid.getCell(x + 1, y),
+      this.grid.getCell(x - 1, y)
+    ];
+    // const vertical = this.grid.getCell(x, y + 1) == this.ELECTRON || this.grid.getCell(x, y - 1) == this.ELECTRON;
+    // const horizontal = this.grid.getCell(x + 1, y) == this.ELECTRON || this.grid.getCell(x - 1, y) == this.ELECTRON;
+    const verticalElectrons = count(verticalNeighbors, this.ELECTRON)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_BOTH);
+    const horizontalElectrons = count(horizontalNeighbors, this.ELECTRON)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_BOTH);
+
+    const vertical = verticalElectrons > 0;
+    const horizontal = horizontalElectrons > 0;
 
     if (vertical && horizontal)
       return this.CROSSWIRE_ELECTRON_BOTH;
@@ -793,7 +830,8 @@ export class Computer extends CellularAutomata {
       return this.CROSSWIRE_ELECTRON_VERTICAL;
   }
 
-  // TODO: TEST THESE TWO FUNCTIONS
-  // TODO: BUILD FULL ADDER
+  // x TODO: TEST THESE TWO FUNCTIONS
+  // x TODO: BUILD FULL ADDER
   // TODO? IMPLEMENT CUSTOM CIRCUITS <- would cross the boundaries of cellular automata but still very pog
+  // TODO: IMPLEMENT CROSSWIRE CHAINS -> compact wiring
 }
