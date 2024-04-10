@@ -1,7 +1,7 @@
 "use strict";
 
 import { Canvas } from "./modules/canvas.js";
-import { ConwaysGameOfLife, WireWorld, Computer } from "./modules/cellularautomata.js";
+import { ConwaysGameOfLife, WireWorld, Computer, Poggers } from "./modules/cellularautomata.js";
 import { Mouse, Keyboard } from "./modules/input.js";
 import { GameOfLifePatterns } from "./modules/patterns.js";
 
@@ -17,7 +17,7 @@ function update() {
 }
 
 function render() {
-  canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorSettings);
+  canvas.renderGrid(cellularAutomata.grid, cellSize, cellularAutomata.colorFunc);
 }
 
 function loop(timestamp) {
@@ -46,10 +46,16 @@ document.body.onkeyup = keyboard.keyUp;
 const conwaysGameOfLife = new ConwaysGameOfLife(canvas, gridDimensions);
 const wireWorld = new WireWorld(canvas, gridDimensions);
 const computer = new Computer(canvas, gridDimensions);
+const poggers = new Poggers(canvas, gridDimensions);
+
+const patterns = new GameOfLifePatterns(conwaysGameOfLife);
+patterns.gliderGun(0, 0);
+patterns.spawn();
 
 conwaysGameOfLife.offload();
 wireWorld.offload();
 computer.offload();
+poggers.offload();
 
 document.getElementById("conwaysgameoflife").onclick = (event) => {
   cellularAutomata.offload();
@@ -69,7 +75,13 @@ document.getElementById("computer").onclick = (event) => {
   cellularAutomata.reload();
 };
 
-let cellularAutomata = conwaysGameOfLife;
+document.getElementById("poggers").onclick = (event) => {
+  cellularAutomata.offload();
+  cellularAutomata = poggers;
+  cellularAutomata.reload();
+}
+
+let cellularAutomata = poggers;
 cellularAutomata.reload();
 
 loop();

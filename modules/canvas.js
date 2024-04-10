@@ -29,13 +29,13 @@ export class Canvas {
     this.canv.style.height = height;
   }
 
-  renderGrid(grid, cellSize, colorSettings) {
+  renderGrid(grid, cellSize, colorFunc) {
     for (let row = 0; row < grid.width; row++) {
       for (let column = 0; column < grid.height; column++) {
         const item = grid.getCell(row, column);
         const cellX = row * cellSize;
         const cellY = column * cellSize;
-        this.drawCell(cellX, cellY, cellSize, colorSettings[item]);
+        this.drawCell(cellX, cellY, cellSize, colorFunc(item));
       }
     }
   }

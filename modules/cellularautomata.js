@@ -2,10 +2,6 @@
 
 import { Grid } from "./grid.js";
 
-function getRandomItem(list) {
-  return list[Math.floor((Math.random() * list.length))];
-}
-
 function count(array, value) {
   let count = 0;
   array.forEach((element) => {
@@ -15,11 +11,7 @@ function count(array, value) {
   return count;
 }
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-}
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 class CellularAutomata {
 
@@ -38,6 +30,10 @@ class CellularAutomata {
     this.colorSettings = {
       0: "white",
       1: "black"
+    };
+
+    this.colorFunc = (item) => {
+      return this.colorSettings[item];
     }
 
     this.instructions = document.getElementById("instructions");
@@ -84,13 +80,13 @@ class CellularAutomata {
   }
   reloadInfo() { }
   reloadSpecificButtons() { }
-  
+
   update() {
     this.updateDebug();
     for (let i = 0; i < this.simulationSpeed; i++)
       this.updateCells();
   }
-  
+
   updateDebug() {
     const simulationSpeedDebug = this.simulationSpeedDebug();
     this.debug.innerHTML = simulationSpeedDebug;
@@ -143,7 +139,6 @@ class CellularAutomata {
     }
   }
 
-
 }
 
 export class WireWorld extends CellularAutomata {
@@ -157,10 +152,10 @@ export class WireWorld extends CellularAutomata {
     this.ELECTRONTAIL = 3;
 
     this.colorSettings = {
-      0: "dimgray",
+      0: "white",
       1: "black",
-      2: "yellow",
-      3: "white"
+      2: "orange",
+      3: "yellow"
     };
 
     this.reloadInfo();
@@ -435,23 +430,43 @@ export class Computer extends CellularAutomata {
     </p>
     `;
   }
-  
+
   reloadSpecificButtons() {
     if (!document.getElementById("clearelectronsbtn")) {
       this.clearElectronsBtn = document.createElement("button");
-      this.clearElectronsBtn.id = "clearelectronsbtn"
+      this.clearElectronsBtn.id = "clearelectronsbtn";
       this.clearElectronsBtn.innerText = "Clear Electrons";
       this.clearElectronsBtn.onclick = (event) => {
         this.clearElectrons();
       }
       this.buttons.appendChild(this.clearElectronsBtn);
     }
+    if (!document.getElementById("randomwiresbtn")) {
+      this.randomWiresBtn = document.createElement("button");
+      this.randomWiresBtn.id = "randomwiresbtn";
+      this.randomWiresBtn.innerText = "Random Wires";
+      this.randomWiresBtn.onclick = (event) => {
+        this.randomWires();
+      }
+      this.buttons.appendChild(this.randomWiresBtn);
+    }
   }
 
   offload() {
-    const btn = document.getElementById("clearelectronsbtn");
-    if (btn)
-      btn.remove();
+    const clearElectronsBtn = document.getElementById("clearelectronsbtn");
+    const randomWiresBtn = document.getElementById("randomwiresbtn");
+    if (clearElectronsBtn) clearElectronsBtn.remove();
+    if (randomWiresBtn) randomWiresBtn.remove();
+  }
+
+  randomWires() {
+    for (let x = 0; x < this.grid.width; x++) {
+      for (let y = 0; y < this.grid.height; y++) {
+        if (Math.random() < 0.75) {
+          this.grid.setCell(x, y, this.WIRE);
+        }
+      }
+    }
   }
   
   clearElectrons() {
@@ -555,10 +570,12 @@ export class Computer extends CellularAutomata {
             result = this.WIRE;
             break;
           case this.CROSSWIRE_ELECTRONTAIL_VERTICAL:
-            result = this.CROSSWIRE;
+            result = this.evalCrosswireElectronTailVerticalCell(x, y);
+            // result = this.CROSSWIRE;
             break;
           case this.CROSSWIRE_ELECTRONTAIL_HORIZONTAL:
-            result = this.CROSSWIRE;
+            result = this.evalCrosswireElectronTailHorizontalCell(x, y);
+            // result = this.CROSSWIRE;
             break;
           case this.CROSSWIRE_ELECTRONTAIL_BOTH:
             result = this.CROSSWIRE;
@@ -699,6 +716,40 @@ export class Computer extends CellularAutomata {
     return this.CROSSWIRE_ELECTRON_BOTH;
   }
 
+  evalCrosswireElectronTailVerticalCell(x, y) {
+    const horizontalNeighbors = [
+      this.grid.getCell(x + 1, y),
+      this.grid.getCell(x - 1, y)
+    ];
+
+    const horizontalElectrons = count(horizontalNeighbors, this.ELECTRON)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_HORIZONTAL_ELECTRONTAIL_VERTICAL)
+                     + count(horizontalNeighbors, this.CROSSWIRE_ELECTRON_BOTH);
+
+    if (horizontalElectrons > 0)
+      return this.CROSSWIRE_ELECTRON_HORIZONTAL;
+    else
+      return this.CROSSWIRE;
+  }
+
+  evalCrosswireElectronTailHorizontalCell(x, y) {
+    const verticalNeighbors = [
+      this.grid.getCell(x, y + 1),
+      this.grid.getCell(x, y - 1)
+    ];
+
+    const verticalElectrons = count(verticalNeighbors, this.ELECTRON)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_VERTICAL_ELECTRONTAIL_HORIZONTAL)
+                   + count(verticalNeighbors, this.CROSSWIRE_ELECTRON_BOTH);
+
+    if (verticalElectrons > 0)
+      return this.CROSSWIRE_ELECTRON_VERTICAL;
+    else
+      return this.CROSSWIRE;
+  }
+
   evalWireCell(x, y) {
     const neighbors = [
       this.grid.getCell(x + 1, y),
@@ -827,8 +878,139 @@ export class Computer extends CellularAutomata {
       return this.CROSSWIRE_ELECTRON_VERTICAL;
   }
 
-  // x TODO: TEST THESE TWO FUNCTIONS
-  // x TODO: BUILD FULL ADDER
-  // TODO? IMPLEMENT CUSTOM CIRCUITS <- would cross the boundaries of cellular automata but still very pog
-  // TODO: IMPLEMENT CROSSWIRE CHAINS -> compact wiring
+}
+
+export class Poggers extends CellularAutomata {
+
+  constructor(canvas, gridDimensions) {
+    super(canvas, gridDimensions);
+
+    this.EMPTY = {x: 0, vx: 0, vy: 0};
+    this.FULL = {x: 1, vx: 0, vy: 0};
+
+    /*
+      particle properties:
+        d - density
+        vx - velocity x
+        vy - velocity y
+      particles:
+        a b
+      cell:
+        ad avx avy
+        bd bvx bvy
+      interaction:
+        a and b repulse eachother
+      theory:
+        two parts: movement and magnetism
+        movement:
+          density distributed by velocity to neighboring cells
+            v: (1, 0) d: 1 would transfer 1 to the cell to the right
+            use sin and cos to distribute velocity
+            fuck i cant think
+
+        density over 1 is distributed to surrounding cells
+        density is transferred in the direction of the velocity to surrounding cells
+          v(1, 0.5)
+        anti alias the pixel
+
+        think of the cell as a pixel with d brightness and vx vy velocity
+        move the pixel the velocity distance and antialias the density
+
+        TODO: make antialias function
+
+        FIGURE THIS OUT IG
+    */
+
+    this.colorFunc = (item) => {
+      let r = (1) * 255;
+      let g = (1 - item.x) * 255;
+      let b = (1 - item.x) * 255;
+      return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
+
+    this.resetGrid();
+
+    this.reloadInfo();
+  }
+
+  reloadInfo() {
+    this.instructions.innerHTML = `
+      much pog
+    `
+  }
+
+  handleMouse(mouse) {
+    let mouseCell = this.getCellFromMousePos(this.canvas.mousePosToCanvas(mouse.mousePos));
+
+    let cell = this.grid.getCell(mouseCell.x, mouseCell.y);
+
+    if (mouse.leftClick())
+      this.grid.setCell(mouseCell.x, mouseCell.y, {...cell, x: 1});
+    if (mouse.rightClick())
+      this.grid.setCell(mouseCell.x, mouseCell.y, {...cell, x: 1, vx: 1, vy: 0.1});
+    if (mouse.middleClick())
+      console.log(cell);
+  }
+
+  handleKeyboard(keyboard) {
+    if (keyboard.keysDown["Space"])
+      this.simulationSpeed = 1 - this.simulationSpeed;
+  }
+
+  updateCells() {
+    this.saveGrid()
+
+    for (let x = 0; x < this.grid.width; x++) {
+      for (let y = 0; y < this.grid.height; y++) {
+        const cell = this.grid.getCell(x, y);
+        // const result = { ...cell };
+
+        // [
+        //   {x: x + 1, y: y},
+        //   {x: x - 1, y: y},
+        //   {x: x, y: y + 1},
+        //   {x: x, y: y - 1},
+        //   {x: x + 1, y: y + 1},
+        //   {x: x + 1, y: y - 1},
+        //   {x: x - 1, y: y + 1},
+        //   {x: x - 1, y: y - 1}
+        // ]
+
+        // this.workingGrid.setCell(x, y, result);
+
+        // this.workingGrid.setCell(x, y, this.EMPTY);
+
+        this.antiAliasPoint(x + cell.vx, y + cell.vy, cell);
+
+        const clamped = {...this.grid.getCell(x, y)};
+
+        clamped.x = clamp(cell.x, 0, 1);
+        clamped.vx = clamp(cell.vx, -1, 1);
+        clamped.vy = clamp(cell.vy, -1, 1);
+
+        this.workingGrid.setCell(x, y, clamped);
+
+      }
+    }
+
+    this.applyGrid();
+  }
+
+  antiAliasPoint(x, y, cell) {
+    for (let _x = Math.floor(x); _x <= Math.ceil(x); _x++) {
+      for (let _y = Math.floor(y); _y <= Math.ceil(y); _y++) {
+        const px = 1 - Math.abs(x - _x);
+        const py = 1 - Math.abs(y - _y);
+        const p = px * py;
+        const _cell = this.grid.getCell(_x, _y);
+        if (_cell == 0)
+          continue;
+        _cell.x += cell.x * p;
+        _cell.vx += cell.vx * p;
+        _cell.vy += cell.vy * p;
+        this.workingGrid.setCell(_x, _y, _cell);
+      }
+    }
+  }
+
 }
